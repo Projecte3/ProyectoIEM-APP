@@ -61,7 +61,7 @@ public class proyectoIEM extends Game {
 		menuMusic.play();
 
 		title.getData().setScale(14);
-		font.getData().setScale(5);
+		font.getData().setScale(7);
 		setScreen(new TitleScreen(this));
 	}
 

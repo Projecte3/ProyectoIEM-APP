@@ -49,7 +49,7 @@ public class TitleScreen extends ScreenAdapter {
 
         // Button Nom
         introduirNom=new TextButton("Introduir nom",textButtonStyle);
-        introduirNom.setPosition(1000,1000);
+        introduirNom.setPosition(1000,900);
         introduirNom.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y)  {
@@ -60,7 +60,7 @@ public class TitleScreen extends ScreenAdapter {
 
         // Button Personatge
         triarPersonatge=new TextButton("Triar personatge",textButtonStyle);
-        triarPersonatge.setPosition(900,800);
+        triarPersonatge.setPosition(900,700);
         triarPersonatge.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y)  {
@@ -71,7 +71,7 @@ public class TitleScreen extends ScreenAdapter {
 
         // Button Cicle
         triarCicle=new TextButton("Triar cicle",textButtonStyle);
-        triarCicle.setPosition(1050,600);
+        triarCicle.setPosition(1050,500);
         triarCicle.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y)  {
@@ -82,7 +82,7 @@ public class TitleScreen extends ScreenAdapter {
 
         // Iniciar Joc Standalone
         iniciarJocStandalone=new TextButton("Standalone",textButtonStyle);
-        iniciarJocStandalone.setPosition(1000,400);
+        iniciarJocStandalone.setPosition(1000,300);
         iniciarJocStandalone.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y)  {
@@ -92,7 +92,7 @@ public class TitleScreen extends ScreenAdapter {
         stage.addActor(iniciarJocStandalone);
 
         iniciarJocMultijugador=new TextButton("Multijugador",textButtonStyle);
-        iniciarJocMultijugador.setPosition(1000,200);
+        iniciarJocMultijugador.setPosition(1000,100);
         iniciarJocMultijugador.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y)  {
@@ -127,7 +127,7 @@ public class TitleScreen extends ScreenAdapter {
 
         game.batch.begin();
         game.batch.draw(new Texture(Gdx.files.internal("initBackground.png")), 0,0,Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        game.title.draw(game.batch, "IPOP GAME",Gdx.graphics.getWidth() * .30f, Gdx.graphics.getHeight() * .90f);
+        game.title.draw(game.batch, "IPOP GAME",Gdx.graphics.getWidth() * .25f, Gdx.graphics.getHeight() * .90f);
 
         game.batch.end();
 
