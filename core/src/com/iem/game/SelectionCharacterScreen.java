@@ -13,24 +13,16 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 
-public class GameScreen extends ScreenAdapter {
+public class SelectionCharacterScreen extends ScreenAdapter {
 
     proyectoIEM game;
 
     //ANIMATION ATTRIBUTES
     Texture walkSheet;
-    SpriteBatch spriteBatch;
-    TextureRegion IDLEFrameDown[] = new TextureRegion[1];
-    TextureRegion IDLEFrameUp[] = new TextureRegion[1];
-    TextureRegion IDLEFrameX[] = new TextureRegion[4];
-
-    TextureRegion walkFrame[] = new TextureRegion[4];
-    TextureRegion walkFrameUP[] = new TextureRegion[5];
-    TextureRegion walkFrameDown[] = new TextureRegion[5];
 
     TextureRegion selectAnimation[] = new TextureRegion[28];
 
-    Animation<TextureRegion> IDLEMarioDown, IDLEMarioUP,IDLEMarioX, walkMario, walkMarioUP, walkMarioDown,marioSelectAnimation;
+    Animation<TextureRegion> marioSelectAnimation;
 
     float stateTime;
     SpriteBatch batch;
@@ -41,8 +33,9 @@ public class GameScreen extends ScreenAdapter {
     float lastSend = 0f;
 
     //Camera
+    private OrthographicCamera camera;
 
-    public GameScreen(proyectoIEM game) {
+    public SelectionCharacterScreen(proyectoIEM game) {
         this.game = game;
     }
 
@@ -88,64 +81,13 @@ public class GameScreen extends ScreenAdapter {
         selectAnimation[26] = new TextureRegion(walkSheet,67,81,20,39);
         selectAnimation[27] = new TextureRegion(walkSheet,88,81,20,39);
 
-        //GAME SCREEN ANIMATION
-        /*
-        //IDLE FRAME DOWN
-        IDLEFrameDown[0] = new TextureRegion(walkSheet,117,123,20,39);
-
-        //IDLE FRAME UP
-        IDLEFrameUp[0] = new TextureRegion(walkSheet,143,123,20,39);
-
-        //IDLE FRAME HORIZONTALY
-        IDLEFrameX[0] = new TextureRegion(walkSheet,4,122,20,39);
-        IDLEFrameX[1] = new TextureRegion(walkSheet,31,122,20,39);
-        IDLEFrameX[2] = new TextureRegion(walkSheet,62,122,20,39);
-        IDLEFrameX[3] = new TextureRegion(walkSheet,90,122,20,39);
-
-        //Walk FRAME X
-        walkFrame[0] = new TextureRegion(walkSheet,21,0,20,39);
-        walkFrame[1] = new TextureRegion(walkSheet,42,0,20,39);
-        walkFrame[2] = new TextureRegion(walkSheet,64,0,20,39);
-        walkFrame[3] = new TextureRegion(walkSheet,85,0,20,39);
-
-        //Walk Frame UP
-        walkFrameUP[0] = new TextureRegion(walkSheet,4,41,20,39);
-        walkFrameUP[1] = new TextureRegion(walkSheet,24,41,20,29);
-        walkFrameUP[2] = new TextureRegion(walkSheet,45,41,20,29);
-        walkFrameUP[3] = new TextureRegion(walkSheet,65,41,20,29);
-        walkFrameUP[4] = new TextureRegion(walkSheet,86,41,20,29);
-
-        //Walk Frame DOWN
-        walkFrameDown[0] = new TextureRegion(walkSheet,4,81,20,39);
-        walkFrameDown[1] = new TextureRegion(walkSheet,25,81,20,39);
-        walkFrameDown[2] = new TextureRegion(walkSheet,45,81,20,39);
-        walkFrameDown[3] = new TextureRegion(walkSheet,67,81,20,39);
-        walkFrameDown[4] = new TextureRegion(walkSheet,88,81,20,39);
-        */
-
         //Select Screen Animation
         marioSelectAnimation = new Animation<TextureRegion>(0.25f,selectAnimation);
 
-        /* CHANGE THE SPEED IN EVERY ANIMATION!!!!
-        //IDLE ANIMATIONS
-        IDLEMarioDown = new Animation<TextureRegion>(0.55f,IDLEFrameDown);
-        IDLEMarioUP = new Animation<TextureRegion>(0.55f,IDLEFrameUp);
-        IDLEMarioX = new Animation<TextureRegion>(0.55f,IDLEFrameX);
-
-        //WALK ANIMATIONS
-        walkMario = new Animation<TextureRegion>(0.55f,walkFrame);
-        walkMarioUP = new Animation<TextureRegion>(0.55f,walkFrameUP);
-        walkMarioDown = new Animation<TextureRegion>(0.55f,walkFrameDown);*/
-
-        game.camera = new OrthographicCamera();
-        game.camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        camera = new OrthographicCamera();
+        camera.setToOrtho(false, 2900, 1480);
         batch = new SpriteBatch();
         stateTime = 0f;
-
-        /*up = new Rectangle(0, 1480*2/3, 2900, 1480/3);
-        down = new Rectangle(0, 0, 2900, 1480/3);
-        left = new Rectangle(0, 0, 2900/3,1480);
-        right = new Rectangle(2900*2/3, 0, 2900/3, 1480);*/
     }
 
     @Override
@@ -153,7 +95,7 @@ public class GameScreen extends ScreenAdapter {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         stateTime += Gdx.graphics.getDeltaTime();
 
-        game.camera.update();
+        camera.update();
 
         selectAnimation();
     }
@@ -168,7 +110,7 @@ public class GameScreen extends ScreenAdapter {
         TextureRegion selectTexture = marioSelectAnimation.getKeyFrame(stateTime,true);
 
         batch.begin();
-        batch.setProjectionMatrix(game.camera.combined);
+        batch.setProjectionMatrix(camera.combined);
         batch.draw(selectTexture, posx, posy, 0, 0,
                 selectTexture.getRegionWidth(),selectTexture.getRegionHeight(),10,10,0);
         batch.end();
