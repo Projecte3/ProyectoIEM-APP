@@ -23,7 +23,7 @@ public class APIPost {
 
         con.setDoOutput(true);
         DataOutputStream wr = new DataOutputStream(con.getOutputStream());
-        wr.writeBytes(json.toString());
+        wr.write(json.toString().getBytes());
         wr.flush();
         wr.close();
 
