@@ -23,31 +23,30 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.utils.ScreenUtils;
 
 public class proyectoIEM extends Game {
-	String alies;
 	SpriteBatch batch;
 	ShapeRenderer shapeRenderer;
-	BitmapFont font, title;
-	Button name;
-	Music menuMusic;
-	OrthographicCamera camera;
 
+	BitmapFont font, title;
 	FreeTypeFontGenerator generator;
 	FreeTypeFontParameter titleParameter, fontParameter;
+	Music menuMusic;
 	Sound sound;
+
+	String alies = "";
+	String cicle = "";
 
 
 	@Override
 	public void create () {
 		batch = new SpriteBatch();
 		shapeRenderer = new ShapeRenderer();
-		name = new Button();
 
 		sound = Gdx.audio.newSound(Gdx.files.internal("sounds/mario-coin.mp3"));
 
 		font = new BitmapFont();
 		title = new BitmapFont();
 
-		generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/Minecraft.ttf"));
+		generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/8-BIT WONDER.TTF"));
 		titleParameter = new FreeTypeFontParameter();
 		titleParameter.size = 14;
 		titleParameter.borderWidth = 2f;
@@ -55,7 +54,7 @@ public class proyectoIEM extends Game {
 		titleParameter.borderColor = Color.WHITE;
 
 		fontParameter = new FreeTypeFontParameter();
-		fontParameter.size = 14;
+		fontParameter.size = 10;
 		fontParameter.borderWidth = 1f;
 		fontParameter.color = Color.BLACK;
 		fontParameter.borderColor = Color.WHITE;
@@ -64,7 +63,7 @@ public class proyectoIEM extends Game {
 		font = generator.generateFont(fontParameter);
 
 		menuMusic = Gdx.audio.newMusic(Gdx.files.internal("sounds/mario-bros-remix-.ogg"));
-		// menuMusic.play();
+		menuMusic.play();
 
 		title.getData().setScale(14);
 		font.getData().setScale(7);
@@ -75,6 +74,7 @@ public class proyectoIEM extends Game {
 	public void dispose () {
 		batch.dispose();
 		shapeRenderer.dispose();
+		title.dispose();
 		font.dispose();
 	}
 }
