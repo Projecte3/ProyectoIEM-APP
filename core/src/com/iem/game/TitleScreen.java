@@ -32,9 +32,13 @@ public class TitleScreen extends ScreenAdapter {
     TextButton.TextButtonStyle textButtonStyle;
     TextButton introduirNom, triarPersonatge, triarCicle, iniciarJocStandalone, iniciarJocMultijugador, ranking;
     float elapsed;
+    OrthographicCamera camera;
 
     public TitleScreen(proyectoIEM game) {
         this.game = game;
+
+        camera = new OrthographicCamera();
+        camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
     }
 
 
@@ -49,10 +53,11 @@ public class TitleScreen extends ScreenAdapter {
 
         // Button Nom
         introduirNom=new TextButton("Introduir nom",textButtonStyle);
-        introduirNom.setPosition(1000,900);
+        introduirNom.setPosition(Gdx.graphics.getWidth() * 0.35f,900);
         introduirNom.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y)  {
+                game.sound.play(1.0f);
                 game.setScreen(new InputScreen(game));
             }
         });
@@ -64,6 +69,7 @@ public class TitleScreen extends ScreenAdapter {
         triarPersonatge.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y)  {
+                game.sound.play(1.0f);
                 game.setScreen(new GameScreen(game));
             }
         });
@@ -75,6 +81,7 @@ public class TitleScreen extends ScreenAdapter {
         triarCicle.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y)  {
+                game.sound.play(1.0f);
                 game.setScreen(new CiclesScreen(game));
             }
         });
@@ -86,7 +93,7 @@ public class TitleScreen extends ScreenAdapter {
         iniciarJocStandalone.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y)  {
-
+                game.sound.play(1.0f);
             }
         });
         stage.addActor(iniciarJocStandalone);
@@ -96,7 +103,7 @@ public class TitleScreen extends ScreenAdapter {
         iniciarJocMultijugador.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y)  {
-
+                game.sound.play(1.0f);
             }
         });
         stage.addActor(iniciarJocMultijugador);
@@ -107,6 +114,7 @@ public class TitleScreen extends ScreenAdapter {
             @Override
             public void clicked(InputEvent event, float x, float y)  {
                 try {
+                    game.sound.play(1.0f);
                     game.setScreen(new RankingScreen(game));
                 } catch (JSONException e) {
                     throw new RuntimeException(e);
@@ -120,10 +128,11 @@ public class TitleScreen extends ScreenAdapter {
 
     @Override
     public void render(float delta) {
+        camera.update();
+        game.batch.setProjectionMatrix(camera.combined);
+
         elapsed += Gdx.graphics.getDeltaTime();
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-
-        game.camera.update();
 
         game.batch.begin();
         game.batch.draw(new Texture(Gdx.files.internal("initBackground.png")), 0,0,Gdx.graphics.getWidth(), Gdx.graphics.getHeight());

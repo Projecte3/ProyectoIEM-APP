@@ -59,8 +59,6 @@ public class InputScreen extends ScreenAdapter {
 
         inputNom = new TextField("Nom", textFieldStyle);
         inputNom.setPosition(1100,500);
-        inputNom.setWidth(1200);
-        inputNom.setWidth(850);
         inputNom.addListener(new InputListener() {
             public boolean keyTyped (InputEvent event, char character) {
                 game.alies = String.valueOf(character);
@@ -72,11 +70,8 @@ public class InputScreen extends ScreenAdapter {
         textButtonStyle = new TextButton.TextButtonStyle();
         textButtonStyle.font = game.font;
         textButtonStyle.fontColor = Color.BLACK;
-        textButtonStyle.checkedFocusedFontColor = Color.YELLOW;
 
         button=new TextButton("ENTER",textButtonStyle);
-        button.setHeight(230);
-        button.setWidth(500);
         button.setPosition(1100,300);
         button.addListener(new ClickListener() {
             @Override
@@ -106,7 +101,7 @@ public class InputScreen extends ScreenAdapter {
         game.batch.begin();
 
         game.batch.draw(GifDecoder.loadGIFAnimation(Animation.PlayMode.LOOP, Gdx.files.internal("initBackground.gif").read()).getKeyFrame(elapsed), 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        game.font.draw(game.batch, "INTRODUCE TU NOMBRE:",Gdx.graphics.getWidth() * .05f, Gdx.graphics.getHeight() * .70f);
+        game.title.draw(game.batch, "Introduce tu nombre:",Gdx.graphics.getWidth() * .05f, Gdx.graphics.getHeight() * .70f);
         game.batch.end();
         stage.draw();
         stage.act();
