@@ -63,11 +63,11 @@ public class proyectoIEM extends Game {
 		font = generator.generateFont(fontParameter);
 
 		menuMusic = Gdx.audio.newMusic(Gdx.files.internal("sounds/mario-bros-remix-.ogg"));
-		menuMusic.play();
+		// menuMusic.play();
 
 		title.getData().setScale(14);
 		font.getData().setScale(7);
-		setScreen(new TitleScreen(this));
+		setScreen(new InputScreen(this));
 	}
 
 	@Override

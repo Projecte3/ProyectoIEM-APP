@@ -21,6 +21,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
+import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.iem.utils.GifDecoder;
 
 import java.util.Random;
@@ -29,8 +30,13 @@ public class InputScreen extends ScreenAdapter {
 
     proyectoIEM game;
     OrthographicCamera camera;
-    TextField inputNom;
+    FitViewport viewport;
 
+    static final float BUTTON_WIDTH_PERCENT = 0.20f;
+    static final float TEXTFIELD_WIDTH_PERCENT = 0.50f;
+    int fontSize;
+
+    TextField inputNom;
     Stage stage;
     float elapsed;
 
@@ -38,22 +44,41 @@ public class InputScreen extends ScreenAdapter {
 
     public InputScreen(proyectoIEM game) {
         this.game = game;
+
+        camera = new OrthographicCamera();
+        viewport = new FitViewport(2048, 1090, camera);
     }
 
 
     @Override
     public void show(){
         stage = new Stage();
-        inputNom = createTextField("Introduce un alias", Gdx.graphics.getWidth() * 0.25f, Gdx.graphics.getHeight() * .40f, 1500, 300, new InputListener(){
+
+        switch (Gdx.app.getType()){
+            case Android:
+                fontSize = 40;
+                break;
+            case Desktop:
+                fontSize = 20;
+                break;
+        }
+
+        // Calcula el ancho y la altura de los botones en función de la pantalla
+        float buttonWidth = Gdx.graphics.getWidth() * BUTTON_WIDTH_PERCENT;
+        float buttonHeight = Gdx.graphics.getHeight() * 0.12f;
+
+        float textfieldWidth = Gdx.graphics.getWidth() * TEXTFIELD_WIDTH_PERCENT;
+        float textfieldHeight = Gdx.graphics.getHeight() * 0.25f;
+
+        inputNom = createTextField("Introduce un alias", Gdx.graphics.getWidth() * 0.25f, Gdx.graphics.getHeight() * .40f, textfieldWidth, textfieldHeight, fontSize, new InputListener(){
             @Override
             public boolean keyDown(InputEvent event, int keycode) {
-
                 return true;
             }
         });
         stage.addActor(inputNom);
 
-        stage.addActor(createButton("Introducir", Gdx.graphics.getWidth() * .42f, Gdx.graphics.getHeight() * .15f, 500, 150, 50,new ClickListener(){
+        stage.addActor(createButton("Introducir", Gdx.graphics.getWidth() * .40f, Gdx.graphics.getHeight() * .15f, buttonWidth, buttonHeight, fontSize,new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y)  {
                 if(inputNom.getText().equals("")){
@@ -65,7 +90,7 @@ public class InputScreen extends ScreenAdapter {
             }
         }));
 
-        stage.addActor(createButton("Volver", Gdx.graphics.getWidth() * .05f, Gdx.graphics.getHeight() * .85f, 500, 150, 50,new ClickListener(){
+        stage.addActor(createButton("Volver", Gdx.graphics.getWidth() * .01f, Gdx.graphics.getHeight() * .85f,  buttonWidth, buttonHeight, fontSize,new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y)  {
                 game.sound.play(1.0f);
@@ -80,6 +105,8 @@ public class InputScreen extends ScreenAdapter {
     public void render(float delta) {
         elapsed += Gdx.graphics.getDeltaTime();
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
+        viewport.update(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
         game.batch.begin();
         game.batch.draw(GifDecoder.loadGIFAnimation(Animation.PlayMode.LOOP, Gdx.files.internal("initBackground.gif").read()).getKeyFrame(elapsed), 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
@@ -100,12 +127,12 @@ public class InputScreen extends ScreenAdapter {
         return arrayAlies[indice];
     }
 
-    public TextField createTextField(String labelText, float x, float y, float width, float height, InputListener listener) {
+    public TextField createTextField(String labelText, float x, float y, float width, float height, int size, InputListener listener) {
         Skin skin = new Skin();
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/8-BIT WONDER.TTF"));
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
 
-        parameter.size = 100;
+        parameter.size = size;
         parameter.borderWidth = 2f;
         parameter.color = Color.BLACK;
         parameter.borderColor = Color.WHITE;

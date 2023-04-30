@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -17,6 +18,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
+import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.iem.utils.APIPost;
 
 import org.json.JSONArray;
@@ -30,21 +32,28 @@ import java.util.Vector;
 public class RankingScreen extends ScreenAdapter {
 
     proyectoIEM game;
+    OrthographicCamera camera;
+    FitViewport viewport;
 
+    static final float BUTTON_WIDTH_PERCENT = 0.20f;
+
+    int fontSize;
     ArrayList<String> listaPlayers = new ArrayList<String>();
 
     int element_inici = 1; // TODO: Hacer que se pida en la pantalla
     int nombre_elements = 20; // TODO: Hacer que se pida en la pantalla
-
     int pagina = 0;
 
-    TextButton button;
-
-    private TextButton.TextButtonStyle textButtonStyle;
-    private Stage stage;
+    Stage stage;
 
     public RankingScreen(proyectoIEM game) throws JSONException {
         this.game = game;
+
+        // To adjust the viewport on all devices
+        camera = new OrthographicCamera();
+        viewport = new FitViewport(2048, 1090, camera);
+
+        // Request
         JSONObject test = new JSONObject();
         test.put("element_inici", element_inici);
         test.put("nombre_elements", nombre_elements);
@@ -72,11 +81,21 @@ public class RankingScreen extends ScreenAdapter {
     @Override
     public void show(){
         stage = new Stage();
-        textButtonStyle = new TextButton.TextButtonStyle();
-        textButtonStyle.font = game.font;
 
+        switch (Gdx.app.getType()){
+            case Android:
+                fontSize = 40;
+                break;
+            case Desktop:
+                fontSize = 20;
+                break;
+        }
 
-        stage.addActor(createButton("Anterior", Gdx.graphics.getWidth() * .55f, Gdx.graphics.getHeight() * .08f, 500, 150, 50,new ClickListener(){
+        // Calcula el ancho y la altura de los botones en función de la pantalla
+        float buttonWidth = Gdx.graphics.getWidth() * BUTTON_WIDTH_PERCENT;
+        float buttonHeight = Gdx.graphics.getHeight() * 0.10f;
+
+        stage.addActor(createButton("Siguiente", Gdx.graphics.getWidth() * .55f, Gdx.graphics.getHeight() * .08f, buttonWidth, buttonHeight, fontSize,new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y)  {
                 game.sound.play(1.0f);
@@ -84,8 +103,7 @@ public class RankingScreen extends ScreenAdapter {
             }
         }));
 
-
-        stage.addActor(createButton("Siguiente", Gdx.graphics.getWidth() * .35f, Gdx.graphics.getHeight() * .08f, 500, 150, 50,new ClickListener(){
+        stage.addActor(createButton("Anterior", Gdx.graphics.getWidth() * .25f, Gdx.graphics.getHeight() * .08f,  buttonWidth, buttonHeight, fontSize,new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y)  {
                 game.sound.play(1.0f);
@@ -95,7 +113,7 @@ public class RankingScreen extends ScreenAdapter {
             }
         }));
 
-        stage.addActor(createButton("Volver", Gdx.graphics.getWidth() * .15f, Gdx.graphics.getHeight() * .85f, 500, 150, 50,new ClickListener(){
+        stage.addActor(createButton("Volver", Gdx.graphics.getWidth() * .01f, Gdx.graphics.getHeight() * .89f,  buttonWidth, buttonHeight, fontSize,new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y)  {
                 game.sound.play(1.0f);
@@ -111,7 +129,7 @@ public class RankingScreen extends ScreenAdapter {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         game.batch.begin();
         game.batch.draw(new Texture(Gdx.files.internal("ranking.png")),0,0,Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        game.batch.draw(new Texture(Gdx.files.internal("UI/rankingTitle.png")),Gdx.graphics.getWidth() * .35f, Gdx.graphics.getHeight() * .85f,1100, 200);
+        game.batch.draw(new Texture(Gdx.files.internal("UI/rankingTitle.png")),Gdx.graphics.getWidth()* .30f,Gdx.graphics.getHeight() * .85f,Gdx.graphics.getWidth() *.4f, Gdx.graphics.getHeight() * .1f);
         float yLista = .75f;
         float xLista = .30f;
         float espacio = .12f;
@@ -126,7 +144,7 @@ public class RankingScreen extends ScreenAdapter {
                 yLista = .75f;
                 xLista = .55f;
             }
-            game.font.draw(game.batch, listaPlayers.get(i), Gdx.graphics.getWidth() * xLista, Gdx.graphics.getHeight() * yLista);
+            createFont(22).draw(game.batch, listaPlayers.get(i), Gdx.graphics.getWidth() * xLista, Gdx.graphics.getHeight() * yLista);
             yLista -= espacio;
             cnt++;
         }
@@ -143,16 +161,9 @@ public class RankingScreen extends ScreenAdapter {
 
     public Button createButton(String labelStr, float x, float y, float width, float height, int size,ClickListener listener) {
         Skin skin = new Skin();
-        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/8-BIT WONDER.TTF"));
-        FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
-
-        parameter.size = size;
-        parameter.borderWidth = 2f;
-        parameter.color = Color.BLACK;
-        parameter.borderColor = Color.WHITE;
 
         Label.LabelStyle labelStyle = new Label.LabelStyle();
-        labelStyle.font = generator.generateFont(parameter);
+        labelStyle.font = createFont(size);
         skin.add("default", labelStyle);
 
         // Crear el estilo del botón
@@ -181,5 +192,17 @@ public class RankingScreen extends ScreenAdapter {
 
         // Devolver el botón creado
         return button;
+    }
+
+    public BitmapFont createFont(int size){
+        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/8-BIT WONDER.TTF"));
+        FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+
+        parameter.size = size;
+        parameter.borderWidth = 2f;
+        parameter.color = Color.BLACK;
+        parameter.borderColor = Color.WHITE;
+
+        return generator.generateFont(parameter);
     }
 }
