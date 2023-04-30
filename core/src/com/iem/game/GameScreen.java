@@ -12,6 +12,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 
 public class GameScreen extends ScreenAdapter {
 
@@ -19,7 +20,7 @@ public class GameScreen extends ScreenAdapter {
     OrthographicCamera camera;
 
     //ANIMATION ATTRIBUTES
-    Texture walkSheet;
+    Texture walkSheet, background;
     TextureRegion IDLEFrameDown[] = new TextureRegion[1];
     TextureRegion IDLEFrameUp[] = new TextureRegion[1];
     TextureRegion IDLEFrameX[] = new TextureRegion[4];
@@ -28,9 +29,7 @@ public class GameScreen extends ScreenAdapter {
     TextureRegion walkFrameUP[] = new TextureRegion[5];
     TextureRegion walkFrameDown[] = new TextureRegion[5];
 
-    TextureRegion selectAnimation[] = new TextureRegion[28];
-
-    Animation<TextureRegion> IDLEMarioDown, IDLEMarioUP,IDLEMarioX, walkMario, walkMarioUP, walkMarioDown,marioSelectAnimation;
+    Animation<TextureRegion> IDLEMarioDown, IDLEMarioUP,IDLEMarioX, walkMario, walkMarioUP, walkMarioDown;
 
     float stateTime;
     SpriteBatch batch;
@@ -49,6 +48,7 @@ public class GameScreen extends ScreenAdapter {
     @Override
     public void show() {
         walkSheet = new Texture(Gdx.files.internal("mario.png"));
+        background = new Texture(Gdx.files.internal("Grass_Sample.png"));
         posx = 750;
         posy = 450;
 
@@ -72,10 +72,10 @@ public class GameScreen extends ScreenAdapter {
 
         //Walk Frame UP
         walkFrameUP[0] = new TextureRegion(walkSheet,4,41,20,39);
-        walkFrameUP[1] = new TextureRegion(walkSheet,24,41,20,29);
-        walkFrameUP[2] = new TextureRegion(walkSheet,45,41,20,29);
-        walkFrameUP[3] = new TextureRegion(walkSheet,65,41,20,29);
-        walkFrameUP[4] = new TextureRegion(walkSheet,86,41,20,29);
+        walkFrameUP[1] = new TextureRegion(walkSheet,24,41,20,39);
+        walkFrameUP[2] = new TextureRegion(walkSheet,45,41,20,39);
+        walkFrameUP[3] = new TextureRegion(walkSheet,65,41,20,39);
+        walkFrameUP[4] = new TextureRegion(walkSheet,86,41,20,39);
 
         //Walk Frame DOWN
         walkFrameDown[0] = new TextureRegion(walkSheet,4,81,20,39);
@@ -84,18 +84,15 @@ public class GameScreen extends ScreenAdapter {
         walkFrameDown[3] = new TextureRegion(walkSheet,67,81,20,39);
         walkFrameDown[4] = new TextureRegion(walkSheet,88,81,20,39);
 
-        //Select Screen Animation
-        marioSelectAnimation = new Animation<TextureRegion>(0.25f,selectAnimation);
-
         //IDLE ANIMATIONS
-        IDLEMarioDown = new Animation<TextureRegion>(0.55f,IDLEFrameDown);
-        IDLEMarioUP = new Animation<TextureRegion>(0.55f,IDLEFrameUp);
-        IDLEMarioX = new Animation<TextureRegion>(0.55f,IDLEFrameX);
+        IDLEMarioDown = new Animation<TextureRegion>(0.25f,IDLEFrameDown);
+        IDLEMarioUP = new Animation<TextureRegion>(0.25f,IDLEFrameUp);
+        IDLEMarioX = new Animation<TextureRegion>(0.25f,IDLEFrameX);
 
         //WALK ANIMATIONS
-        walkMario = new Animation<TextureRegion>(0.55f,walkFrame);
-        walkMarioUP = new Animation<TextureRegion>(0.55f,walkFrameUP);
-        walkMarioDown = new Animation<TextureRegion>(0.55f,walkFrameDown);
+        walkMario = new Animation<TextureRegion>(0.25f,walkFrame);
+        walkMarioUP = new Animation<TextureRegion>(0.25f,walkFrameUP);
+        walkMarioDown = new Animation<TextureRegion>(0.25f,walkFrameDown);
 
         camera = new OrthographicCamera();
         camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
@@ -110,19 +107,92 @@ public class GameScreen extends ScreenAdapter {
 
     @Override
     public void render(float delta) {
-        TextureRegion selectTexture = marioSelectAnimation.getKeyFrame(stateTime,true);
+        TextureRegion IDLEDown = IDLEMarioDown.getKeyFrame(stateTime,true);
+        TextureRegion walkFrameX = walkMario.getKeyFrame(stateTime, true);
+        TextureRegion walkUP = walkMarioUP.getKeyFrame(stateTime, true);
+        TextureRegion walkDown = walkMarioDown.getKeyFrame(stateTime, true);
+
 
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         stateTime += Gdx.graphics.getDeltaTime();
 
         batch.begin();
         batch.setProjectionMatrix(camera.combined);
-        batch.draw(selectTexture, posx, posy, 0, 0, selectTexture.getRegionWidth(),selectTexture.getRegionHeight(),10,10,0);
+        batch.draw(background, 0 , 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         batch.end();
+
+        int direction = virtual_joystick_control();
+
+        switch (direction){
+            //IDLE ANIMATION
+            case 0:
+                batch.begin();
+                IDLEMarioDown = new Animation<TextureRegion>(0.25f,IDLEFrameDown);
+                batch.draw(IDLEDown, posx, posy, 0, 0,
+                        IDLEDown.getRegionWidth(),IDLEDown.getRegionHeight(),5,5,0);
+                batch.end();
+                break;
+            //GO DOWN ANIMATION
+            case 1:
+                IDLEMarioDown = new Animation<TextureRegion>(0.25f, walkFrameUP);
+                batch.begin();
+                posy += 20;
+                batch.draw(walkUP, posx, posy,0, 0,
+                        walkUP.getRegionWidth(),walkUP.getRegionHeight(),5,5,0);
+                batch.end();
+                break;
+            //GO UP ANIMATION
+            case 2:
+                IDLEMarioDown = new Animation<TextureRegion>(0.25f, walkFrameDown);
+                batch.begin();
+                posy -= 20;
+                batch.draw(walkDown, posx, posy,0, 0,
+                        walkDown.getRegionWidth(),walkDown.getRegionHeight(),5,5,0);
+                batch.end();
+                break;
+            //GO LEFT ANIMATION
+            case 3:
+                IDLEMarioDown = new Animation<TextureRegion>(0.25f, walkFrame);
+                batch.begin();
+                posx -= 20;
+                batch.draw(walkFrameX, posx, posy,0, 0,
+                        walkFrameX.getRegionWidth(),walkFrameX.getRegionHeight(),-5,5,0);
+                batch.end();
+                break;
+            //GO RIGHT ANIMATION
+            case 4:
+                IDLEMarioDown = new Animation<TextureRegion>(0.25f, walkFrame);
+                batch.begin();
+                posx += 20;
+                batch.draw(walkFrameX, posx, posy,0, 0,
+                        walkFrameX.getRegionWidth(),walkFrameX.getRegionHeight(),5,5,0);
+                batch.end();
+                break;
+        }
+
     }
 
     @Override
     public void hide() {
         Gdx.input.setInputProcessor(null);
+    }
+
+    protected int virtual_joystick_control() {
+        for(int i=0;i<10;i++)
+            if (Gdx.input.isTouched(i)) {
+                Vector3 touchPos = new Vector3();
+                touchPos.set(Gdx.input.getX(i), Gdx.input.getY(i), 0);
+                camera.unproject(touchPos);
+                if (up.contains(touchPos.x, touchPos.y)) {
+                    return UP;
+                } else if (down.contains(touchPos.x, touchPos.y)) {
+                    return DOWN;
+                } else if (left.contains(touchPos.x, touchPos.y)) {
+                    return LEFT;
+                } else if (right.contains(touchPos.x, touchPos.y)) {
+                    return RIGHT;
+                }
+            }
+        return IDLE;
     }
 }
