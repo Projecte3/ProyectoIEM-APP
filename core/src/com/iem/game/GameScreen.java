@@ -54,6 +54,8 @@ public class GameScreen extends ScreenAdapter {
 
         camera = new OrthographicCamera();
         viewport = new FitViewport(2048, 1090, camera);
+
+        System.out.println("test: "+screenWidth +", "+screenHeight);
     }
 
     @Override
@@ -121,10 +123,10 @@ public class GameScreen extends ScreenAdapter {
         stateTime = 0f;
 
         // Crear los rectángulos ajustados a la pantalla del dispositivo
-        up = new Rectangle(0, screenHeight * 2/3, screenWidth, screenHeight/3);
-        down = new Rectangle(0, 0, screenWidth, screenHeight/3);
+        up = new Rectangle(0, 0, screenWidth, screenHeight/3);
+        down = new Rectangle(0, screenHeight * 2/3, screenWidth, screenHeight);
         left = new Rectangle(0, 0, screenWidth/3, screenHeight);
-        right = new Rectangle(screenWidth * 2/3, 0, screenWidth/3, screenHeight);
+        right = new Rectangle(screenWidth * 2/3, 0, screenWidth, screenHeight);
     }
 
     @Override
@@ -152,7 +154,7 @@ public class GameScreen extends ScreenAdapter {
                         IDLEDown.getRegionWidth(),IDLEDown.getRegionHeight(),spriteSizeX,spriteSizeY,0);
                 batch.end();
                 break;
-            //GO DOWN ANIMATION
+            //GO UP ANIMATION
             case 1:
                 IDLEMarioDown = new Animation<>(0.25f, walkFrameUP);
                 batch.begin();
@@ -161,7 +163,7 @@ public class GameScreen extends ScreenAdapter {
                         walkUP.getRegionWidth(),walkUP.getRegionHeight(),spriteSizeX,spriteSizeY,0);
                 batch.end();
                 break;
-            //GO UP ANIMATION
+            //GO DOWN ANIMATION
             case 2:
                 IDLEMarioDown = new Animation<>(0.25f, walkFrameDown);
                 batch.begin();
@@ -175,7 +177,7 @@ public class GameScreen extends ScreenAdapter {
                 IDLEMarioDown = new Animation<>(0.25f, walkFrame);
                 batch.begin();
                 posx -= 20;
-                batch.draw(walkFrameX, posx, posy,0, 0,
+                batch.draw(walkFrameX, posx, posy,0  +  walkFrameX.getRegionWidth(), 0,
                         walkFrameX.getRegionWidth(),walkFrameX.getRegionHeight(),-spriteSizeX,spriteSizeY,0);
                 batch.end();
                 break;
@@ -202,7 +204,7 @@ public class GameScreen extends ScreenAdapter {
             if (Gdx.input.isTouched(i)) {
                 Vector3 touchPos = new Vector3();
                 touchPos.set(Gdx.input.getX(i), Gdx.input.getY(i), 0);
-                camera.unproject(touchPos);
+                //camera.unproject(touchPos);
                 if (up.contains(touchPos.x, touchPos.y)) {
                     return UP;
                 } else if (down.contains(touchPos.x, touchPos.y)) {
