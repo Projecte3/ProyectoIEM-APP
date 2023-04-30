@@ -67,10 +67,10 @@ public class CiclesScreen extends ScreenAdapter {
 
         switch (Gdx.app.getType()){
             case Android:
-                fontSize = 40;
+                fontSize = 60;
                 break;
             case Desktop:
-                fontSize = 25;
+                fontSize = 40;
                 break;
         }
 

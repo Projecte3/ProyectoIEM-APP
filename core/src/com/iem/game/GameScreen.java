@@ -53,7 +53,7 @@ public class GameScreen extends ScreenAdapter {
         this.game = game;
 
         camera = new OrthographicCamera();
-        viewport = new FitViewport(2048, 1090, camera);
+        viewport = new FitViewport(2048, 1080, camera);
 
         System.out.println("test: "+screenWidth +", "+screenHeight);
     }

@@ -32,7 +32,7 @@ public class TitleScreen extends ScreenAdapter {
     public TitleScreen(proyectoIEM game) {
         this.game = game;
         camera = new OrthographicCamera();
-        viewport = new FitViewport(2048, 1090, camera);
+        viewport = new FitViewport(2048, 1070, camera);
     }
 
     @Override
@@ -41,10 +41,10 @@ public class TitleScreen extends ScreenAdapter {
 
         switch (Gdx.app.getType()){
             case Android:
-                fontSize = 40;
+                fontSize = 60;
                 break;
             case Desktop:
-                fontSize = 20;
+                fontSize = 30;
                 break;
         }
 
@@ -108,8 +108,8 @@ public class TitleScreen extends ScreenAdapter {
         stage.addActor(ranking);
 
         stage.addActor(Utils.createLabel("Personatge", Gdx.graphics.getWidth() * .05f, Gdx.graphics.getHeight() * .12f, fontSize));
-        stage.addActor(Utils.createLabel("Alies | " + game.alies, Gdx.graphics.getWidth() * .05f, Gdx.graphics.getHeight() * .08f, fontSize));
-        stage.addActor(Utils.createLabel("Cicle | " + game.cicle, Gdx.graphics.getWidth() * .05f, Gdx.graphics.getHeight() * .04f, fontSize));
+        stage.addActor(Utils.createLabel("Alies: " + game.alies, Gdx.graphics.getWidth() * .05f, Gdx.graphics.getHeight() * .08f, fontSize));
+        stage.addActor(Utils.createLabel("Cicle: " + game.cicle, Gdx.graphics.getWidth() * .05f, Gdx.graphics.getHeight() * .04f, fontSize));
 
         Gdx.input.setInputProcessor(stage);
     }
@@ -118,8 +118,7 @@ public class TitleScreen extends ScreenAdapter {
     public void render(float delta) {
         elapsed += Gdx.graphics.getDeltaTime();
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-
-
+        
         game.batch.begin();
         game.batch.draw(GifDecoder.loadGIFAnimation(Animation.PlayMode.LOOP, Gdx.files.internal("initBackground.gif").read()).getKeyFrame(elapsed), 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         game.batch.draw(new Texture(Gdx.files.internal("UI/title.png")),Gdx.graphics.getWidth()* .20f,Gdx.graphics.getHeight() * .83f,Gdx.graphics.getWidth() *.6f, Gdx.graphics.getHeight() * .15f);

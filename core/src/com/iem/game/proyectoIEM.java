@@ -51,7 +51,7 @@ public class proyectoIEM extends Game {
 		font = new BitmapFont();
 		title = new BitmapFont();
 
-		generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/8-BIT WONDER.TTF"));
+		generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/upheavtt.ttf"));
 		titleParameter = new FreeTypeFontParameter();
 		titleParameter.size = 14;
 		titleParameter.borderWidth = 2f;

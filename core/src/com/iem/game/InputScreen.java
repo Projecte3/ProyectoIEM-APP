@@ -48,7 +48,7 @@ public class InputScreen extends ScreenAdapter {
         this.game = game;
 
         camera = new OrthographicCamera();
-        viewport = new FitViewport(2048, 1090, camera);
+        viewport = new FitViewport(2048, 1080, camera);
     }
 
 
@@ -58,10 +58,10 @@ public class InputScreen extends ScreenAdapter {
 
         switch (Gdx.app.getType()){
             case Android:
-                fontSize = 40;
+                fontSize = 60;
                 break;
             case Desktop:
-                fontSize = 20;
+                fontSize = 40;
                 break;
         }
 
@@ -107,7 +107,6 @@ public class InputScreen extends ScreenAdapter {
     public void render(float delta) {
         elapsed += Gdx.graphics.getDeltaTime();
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-
 
         game.batch.begin();
         game.batch.draw(GifDecoder.loadGIFAnimation(Animation.PlayMode.LOOP, Gdx.files.internal("initBackground.gif").read()).getKeyFrame(elapsed), 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());

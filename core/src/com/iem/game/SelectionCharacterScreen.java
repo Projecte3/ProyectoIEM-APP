@@ -64,10 +64,10 @@ public class SelectionCharacterScreen extends ScreenAdapter {
 
         switch (Gdx.app.getType()){
             case Android:
-                fontSize = 40;
+                fontSize = 60;
                 break;
             case Desktop:
-                fontSize = 20;
+                fontSize = 30;
                 break;
         }
 
@@ -84,7 +84,7 @@ public class SelectionCharacterScreen extends ScreenAdapter {
             }
         }));
 
-        stage.addActor(createButton("Enrere", Gdx.graphics.getWidth() * .01f, Gdx.graphics.getHeight() * .89f,  buttonWidth, buttonHeight, fontSize,new ClickListener(){
+        stage.addActor(createButton("Enrere", Gdx.graphics.getWidth() * .01f, Gdx.graphics.getHeight() * .85f,  buttonWidth, buttonHeight, fontSize,new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y)  {
                 game.sound.play(1.0f);

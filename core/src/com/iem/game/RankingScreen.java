@@ -88,10 +88,10 @@ public class RankingScreen extends ScreenAdapter {
 
         switch (Gdx.app.getType()){
             case Android:
-                fontSize = 40;
+                fontSize = 60;
                 break;
             case Desktop:
-                fontSize = 20;
+                fontSize = 30;
                 break;
         }
 
@@ -151,7 +151,7 @@ public class RankingScreen extends ScreenAdapter {
                 yLista = .75f;
                 xLista = .55f;
             }
-            createFont(22).draw(game.batch, listaPlayers.get(i), Gdx.graphics.getWidth() * xLista, Gdx.graphics.getHeight() * yLista);
+            createFont(40).draw(game.batch, listaPlayers.get(i), Gdx.graphics.getWidth() * xLista, Gdx.graphics.getHeight() * yLista);
             yLista -= espacio;
             cnt++;
         }

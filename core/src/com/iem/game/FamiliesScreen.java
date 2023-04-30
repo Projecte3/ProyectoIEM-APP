@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -12,6 +13,7 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.iem.utils.APIPost;
 import com.iem.utils.GifDecoder;
 import com.iem.utils.Utils;
@@ -35,6 +37,7 @@ public class FamiliesScreen extends ScreenAdapter {
 
     public FamiliesScreen(proyectoIEM game) {
         this.game = game;
+
         JSONObject test = new JSONObject();
         try {
             StringBuffer sb = new APIPost().sendPost("https://proyecteiem-api-production.up.railway.app/get_families",test);
@@ -58,14 +61,14 @@ public class FamiliesScreen extends ScreenAdapter {
 
         switch (Gdx.app.getType()){
             case Android:
-                fontSize = 40;
+                fontSize = 60;
                 break;
             case Desktop:
-                fontSize = 25;
+                fontSize = 40;
                 break;
         }
 
-        textButtonStyle.font = createFont(fontSize);
+        textButtonStyle.font = Utils.createFont(fontSize);
 
         // Calcula el ancho y la altura de los botones en función de la pantalla
         float buttonWidth = Gdx.graphics.getWidth() * proyectoIEM.BUTTON_WIDTH_PERCENT;
@@ -120,17 +123,5 @@ public class FamiliesScreen extends ScreenAdapter {
     @Override
     public void hide(){
         Gdx.input.setInputProcessor(null);
-    }
-
-    public BitmapFont createFont(int size){
-        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/8-BIT WONDER.TTF"));
-        FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
-
-        parameter.size = size;
-        parameter.borderWidth = 2f;
-        parameter.color = Color.BLACK;
-        parameter.borderColor = Color.WHITE;
-
-        return generator.generateFont(parameter);
     }
 }
