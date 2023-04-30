@@ -1,5 +1,8 @@
 package com.iem.game;
 
+import static com.iem.utils.Utils.createButton;
+import static com.iem.utils.Utils.createTextField;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.Color;
@@ -32,8 +35,7 @@ public class InputScreen extends ScreenAdapter {
     OrthographicCamera camera;
     FitViewport viewport;
 
-    static final float BUTTON_WIDTH_PERCENT = 0.20f;
-    static final float TEXTFIELD_WIDTH_PERCENT = 0.50f;
+
     int fontSize;
 
     TextField inputNom;
@@ -64,13 +66,13 @@ public class InputScreen extends ScreenAdapter {
         }
 
         // Calcula el ancho y la altura de los botones en función de la pantalla
-        float buttonWidth = Gdx.graphics.getWidth() * BUTTON_WIDTH_PERCENT;
+        float buttonWidth = Gdx.graphics.getWidth() * proyectoIEM.BUTTON_WIDTH_PERCENT;
         float buttonHeight = Gdx.graphics.getHeight() * 0.12f;
 
-        float textfieldWidth = Gdx.graphics.getWidth() * TEXTFIELD_WIDTH_PERCENT;
-        float textfieldHeight = Gdx.graphics.getHeight() * 0.25f;
+        float textfieldWidth = Gdx.graphics.getWidth() * proyectoIEM.TEXTFIELD_WIDTH_PERCENT;
+        float textfieldHeight = Gdx.graphics.getHeight() * 0.20f;
 
-        inputNom = createTextField("Introduce un alias", Gdx.graphics.getWidth() * 0.25f, Gdx.graphics.getHeight() * .40f, textfieldWidth, textfieldHeight, fontSize, new InputListener(){
+        inputNom = createTextField(stage,"Introdueix un alies", Gdx.graphics.getWidth() * 0.30f, Gdx.graphics.getHeight() * .40f, textfieldWidth, textfieldHeight, fontSize, new InputListener(){
             @Override
             public boolean keyDown(InputEvent event, int keycode) {
                 return true;
@@ -78,11 +80,11 @@ public class InputScreen extends ScreenAdapter {
         });
         stage.addActor(inputNom);
 
-        stage.addActor(createButton("Introducir", Gdx.graphics.getWidth() * .40f, Gdx.graphics.getHeight() * .15f, buttonWidth, buttonHeight, fontSize,new ClickListener(){
+        stage.addActor(createButton("Introduir", Gdx.graphics.getWidth() * .40f, Gdx.graphics.getHeight() * .15f, buttonWidth, buttonHeight, fontSize,new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y)  {
                 if(inputNom.getText().equals("")){
-                    game.alies = generarAlias() + Math.floor(Math.random() * 3);
+                    game.alies = generarAlias() + Math.round(Math.random() * 3);
                 } else {
                     game.alies = inputNom.getText();
                 }
@@ -90,7 +92,7 @@ public class InputScreen extends ScreenAdapter {
             }
         }));
 
-        stage.addActor(createButton("Volver", Gdx.graphics.getWidth() * .01f, Gdx.graphics.getHeight() * .85f,  buttonWidth, buttonHeight, fontSize,new ClickListener(){
+        stage.addActor(createButton("Enrere", Gdx.graphics.getWidth() * .01f, Gdx.graphics.getHeight() * .85f,  buttonWidth, buttonHeight, fontSize,new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y)  {
                 game.sound.play(1.0f);
@@ -127,86 +129,7 @@ public class InputScreen extends ScreenAdapter {
         return arrayAlies[indice];
     }
 
-    public TextField createTextField(String labelText, float x, float y, float width, float height, int size, InputListener listener) {
-        Skin skin = new Skin();
-        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/8-BIT WONDER.TTF"));
-        FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
 
-        parameter.size = size;
-        parameter.borderWidth = 2f;
-        parameter.color = Color.BLACK;
-        parameter.borderColor = Color.WHITE;
 
-        TextField.TextFieldStyle style = new TextField.TextFieldStyle();
-        style.font = generator.generateFont(parameter);
-        style.fontColor = Color.BLACK;
-        style.cursor = new TextureRegionDrawable(new TextureRegion(new Texture(Gdx.files.internal("UI/textfield_cursor.png"))));
-        style.selection = new TextureRegionDrawable(new TextureRegion(new Texture(Gdx.files.internal("UI/textfield_selection.png"))));
-        style.background = new TextureRegionDrawable(new TextureRegion(new Texture(Gdx.files.internal("UI/textfield_background.png"))));
-
-        Label.LabelStyle labelStyle = new Label.LabelStyle();
-        labelStyle.font = generator.generateFont(parameter);
-        skin.add("default", labelStyle);
-
-        Label label = new Label(labelText, skin);
-        label.setPosition(x, y + height); // Coloca la etiqueta encima del cuadro de texto
-        label.setWidth(width);
-        label.setAlignment(Align.center);
-
-        // Crea el cuadro de texto
-        TextField textField = new TextField("", style);
-        textField.setPosition(x, y);
-        textField.setWidth(width);
-        textField.setHeight(height);
-        textField.addListener(listener);
-
-        // Agrega la etiqueta y el cuadro de texto al stage
-        stage.addActor(label);
-        stage.addActor(textField);
-
-        return textField;
-    }
-
-    public Button createButton(String labelStr, float x, float y, float width, float height, int size, ClickListener listener) {
-        Skin skin = new Skin();
-        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/8-BIT WONDER.TTF"));
-        FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
-
-        parameter.size = size;
-        parameter.borderWidth = 2f;
-        parameter.color = Color.BLACK;
-        parameter.borderColor = Color.WHITE;
-
-        Label.LabelStyle labelStyle = new Label.LabelStyle();
-        labelStyle.font = generator.generateFont(parameter);
-        skin.add("default", labelStyle);
-
-        // Crear el estilo del botón
-        Button.ButtonStyle buttonStyle = new Button.ButtonStyle();
-        buttonStyle.up = new TextureRegionDrawable(new TextureRegion(new Texture(Gdx.files.internal("UI/button_up.png"))));
-        buttonStyle.down = new TextureRegionDrawable(new TextureRegion(new Texture(Gdx.files.internal("UI/button_down.png"))));
-
-        // Crear el botón con el estilo y las dimensiones especificadas
-        Button button = new Button(buttonStyle);
-        button.setPosition(x, y);
-        button.setWidth(width);
-        button.setHeight(height);
-
-        // Crear la etiqueta con el texto especificado y el estilo por defecto
-        Label label = new Label(labelStr, skin);
-        label.setAlignment(Align.center); // centrar el texto en la etiqueta
-
-        // Agregar la etiqueta al botón
-        button.add(label);
-
-        // Agregar el listener al botón
-        button.addListener(listener);
-
-        // Agregar el botón al escenario
-        stage.addActor(button);
-
-        // Devolver el botón creado
-        return button;
-    }
 
 }

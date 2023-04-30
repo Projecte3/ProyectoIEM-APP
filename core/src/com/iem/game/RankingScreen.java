@@ -1,11 +1,15 @@
 package com.iem.game;
 
+import static com.iem.utils.Utils.createButton;
+import static com.iem.utils.Utils.createFont;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
@@ -20,6 +24,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.iem.utils.APIPost;
+import com.iem.utils.GifDecoder;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -45,6 +50,7 @@ public class RankingScreen extends ScreenAdapter {
     int pagina = 0;
 
     Stage stage;
+    float elapsed;
 
     public RankingScreen(proyectoIEM game) throws JSONException {
         this.game = game;
@@ -60,12 +66,10 @@ public class RankingScreen extends ScreenAdapter {
         int cnt = 1;
         try {
             StringBuffer sb = new APIPost().sendPost("https://proyecteiem-api-production.up.railway.app/get_ranking",test);
-            System.out.println(sb.toString());
             JSONObject objResponse = new JSONObject(sb.toString());
             JSONArray players = objResponse.getJSONArray("result");
             for (int i = 0; i < players.length(); i++) {
                 JSONObject player = players.getJSONObject(i);
-                System.out.println("jugador: "+player.toString());
 
                 String nom_jugador = player.getString("nom_jugador");
                 int puntuacion = player.getInt("puntuacio");
@@ -113,7 +117,7 @@ public class RankingScreen extends ScreenAdapter {
             }
         }));
 
-        stage.addActor(createButton("Volver", Gdx.graphics.getWidth() * .01f, Gdx.graphics.getHeight() * .89f,  buttonWidth, buttonHeight, fontSize,new ClickListener(){
+        stage.addActor(createButton("Enrere", Gdx.graphics.getWidth() * .01f, Gdx.graphics.getHeight() * .89f,  buttonWidth, buttonHeight, fontSize,new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y)  {
                 game.sound.play(1.0f);
@@ -126,10 +130,13 @@ public class RankingScreen extends ScreenAdapter {
 
     @Override
     public void render(float delta) {
+        elapsed += Gdx.graphics.getDeltaTime();
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
         game.batch.begin();
-        game.batch.draw(new Texture(Gdx.files.internal("ranking.png")),0,0,Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        game.batch.draw(GifDecoder.loadGIFAnimation(Animation.PlayMode.LOOP, Gdx.files.internal("ranking.gif").read()).getKeyFrame(elapsed), 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         game.batch.draw(new Texture(Gdx.files.internal("UI/rankingTitle.png")),Gdx.graphics.getWidth()* .30f,Gdx.graphics.getHeight() * .85f,Gdx.graphics.getWidth() *.4f, Gdx.graphics.getHeight() * .1f);
+
         float yLista = .75f;
         float xLista = .30f;
         float espacio = .12f;
@@ -157,52 +164,5 @@ public class RankingScreen extends ScreenAdapter {
     @Override
     public void hide(){
         Gdx.input.setInputProcessor(null);
-    }
-
-    public Button createButton(String labelStr, float x, float y, float width, float height, int size,ClickListener listener) {
-        Skin skin = new Skin();
-
-        Label.LabelStyle labelStyle = new Label.LabelStyle();
-        labelStyle.font = createFont(size);
-        skin.add("default", labelStyle);
-
-        // Crear el estilo del botón
-        Button.ButtonStyle buttonStyle = new Button.ButtonStyle();
-        buttonStyle.up = new TextureRegionDrawable(new TextureRegion(new Texture(Gdx.files.internal("UI/button_up.png"))));
-        buttonStyle.down = new TextureRegionDrawable(new TextureRegion(new Texture(Gdx.files.internal("UI/button_down.png"))));
-
-        // Crear el botón con el estilo y las dimensiones especificadas
-        Button button = new Button(buttonStyle);
-        button.setPosition(x, y);
-        button.setWidth(width);
-        button.setHeight(height);
-
-        // Crear la etiqueta con el texto especificado y el estilo por defecto
-        Label label = new Label(labelStr, skin);
-        label.setAlignment(Align.center); // centrar el texto en la etiqueta
-
-        // Agregar la etiqueta al botón
-        button.add(label);
-
-        // Agregar el listener al botón
-        button.addListener(listener);
-
-        // Agregar el botón al escenario
-        stage.addActor(button);
-
-        // Devolver el botón creado
-        return button;
-    }
-
-    public BitmapFont createFont(int size){
-        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/8-BIT WONDER.TTF"));
-        FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
-
-        parameter.size = size;
-        parameter.borderWidth = 2f;
-        parameter.color = Color.BLACK;
-        parameter.borderColor = Color.WHITE;
-
-        return generator.generateFont(parameter);
     }
 }

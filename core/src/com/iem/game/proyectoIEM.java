@@ -32,8 +32,13 @@ public class proyectoIEM extends Game {
 	Music menuMusic;
 	Sound sound;
 
+	static final float BUTTON_WIDTH_PERCENT = 0.20f;
+	static final float TEXTFIELD_WIDTH_PERCENT = 0.40f;
+
+
 	String alies = "";
 	String cicle = "";
+	Texture personatge;
 
 
 	@Override
@@ -62,12 +67,13 @@ public class proyectoIEM extends Game {
 		title = generator.generateFont(titleParameter);
 		font = generator.generateFont(fontParameter);
 
-		menuMusic = Gdx.audio.newMusic(Gdx.files.internal("sounds/mario-bros-remix-.ogg"));
-		// menuMusic.play();
+		menuMusic = Gdx.audio.newMusic(Gdx.files.internal("sounds/backgroundMusic.ogg"));
+		menuMusic.setLooping(true);
+		menuMusic.play();
 
 		title.getData().setScale(14);
 		font.getData().setScale(7);
-		setScreen(new InputScreen(this));
+		setScreen(new TitleScreen(this));
 	}
 
 	@Override

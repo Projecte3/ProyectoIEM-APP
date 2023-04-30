@@ -1,30 +1,21 @@
 package com.iem.game;
 
-import com.badlogic.gdx.Application;
+import static com.iem.utils.Utils.createButton;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
+import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
-import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
-import com.badlogic.gdx.utils.Align;
-import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.badlogic.gdx.utils.viewport.FitViewport;
-
-import org.json.JSONException;
-
+import com.iem.utils.GifDecoder;
+import com.iem.utils.Utils;
 
 public class TitleScreen extends ScreenAdapter {
 
@@ -61,6 +52,8 @@ public class TitleScreen extends ScreenAdapter {
         float buttonWidth = Gdx.graphics.getWidth() * BUTTON_WIDTH_PERCENT;
         float buttonHeight = Gdx.graphics.getHeight() * 0.12f;
 
+
+        // BOTONES
         escollirAlies = createButton("Escull alies", Gdx.graphics.getWidth() * .375f, Gdx.graphics.getHeight() * .675f, buttonWidth, buttonHeight, fontSize,new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y)  {
@@ -70,7 +63,7 @@ public class TitleScreen extends ScreenAdapter {
         });
         stage.addActor(escollirAlies);
 
-        escollirCicle = createButton("Triar cicle", Gdx.graphics.getWidth() * .375f, Gdx.graphics.getHeight() * .525f, buttonWidth, buttonHeight, fontSize,new ClickListener(){
+        escollirCicle = createButton("Triar cicle", Gdx.graphics.getWidth() * .25f, Gdx.graphics.getHeight() * .525f, buttonWidth, buttonHeight, fontSize,new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y)  {
                 game.sound.play(1.0f);
@@ -79,11 +72,20 @@ public class TitleScreen extends ScreenAdapter {
         });
         stage.addActor(escollirCicle);
 
-        standalone = createButton("Standalone", Gdx.graphics.getWidth() * .375f, Gdx.graphics.getHeight() * .375f, buttonWidth, buttonHeight, fontSize,new ClickListener(){
+        escollirCicle = createButton("Triar\n personatge", Gdx.graphics.getWidth() * .50f, Gdx.graphics.getHeight() * .525f, buttonWidth, buttonHeight, fontSize,new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y)  {
                 game.sound.play(1.0f);
                 game.setScreen(new SelectionCharacterScreen(game));
+            }
+        });
+        stage.addActor(escollirCicle);
+
+        standalone = createButton("Standalone", Gdx.graphics.getWidth() * .375f, Gdx.graphics.getHeight() * .375f, buttonWidth, buttonHeight, fontSize,new ClickListener(){
+            @Override
+            public void clicked(InputEvent event, float x, float y)  {
+                game.sound.play(1.0f);
+                game.setScreen(new PreGameScreen(game));
             }
         });
         stage.addActor(standalone);
@@ -105,6 +107,10 @@ public class TitleScreen extends ScreenAdapter {
         });
         stage.addActor(ranking);
 
+        stage.addActor(Utils.createLabel("Personatge", Gdx.graphics.getWidth() * .05f, Gdx.graphics.getHeight() * .12f, fontSize));
+        stage.addActor(Utils.createLabel("Alies | " + game.alies, Gdx.graphics.getWidth() * .05f, Gdx.graphics.getHeight() * .08f, fontSize));
+        stage.addActor(Utils.createLabel("Cicle | " + game.cicle, Gdx.graphics.getWidth() * .05f, Gdx.graphics.getHeight() * .04f, fontSize));
+
         Gdx.input.setInputProcessor(stage);
     }
 
@@ -117,15 +123,33 @@ public class TitleScreen extends ScreenAdapter {
         viewport.update(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
         game.batch.begin();
-        game.batch.draw(new Texture(Gdx.files.internal("initBackground.png")), 0,0,Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        game.batch.draw(GifDecoder.loadGIFAnimation(Animation.PlayMode.LOOP, Gdx.files.internal("initBackground.gif").read()).getKeyFrame(elapsed), 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         game.batch.draw(new Texture(Gdx.files.internal("UI/title.png")),Gdx.graphics.getWidth()* .20f,Gdx.graphics.getHeight() * .83f,Gdx.graphics.getWidth() *.6f, Gdx.graphics.getHeight() * .15f);
-        if(game.alies == null || game.cicle == null){
-            standalone.setDisabled(true);
-            multijugador.setDisabled(true);
 
+        if(game.alies.equals("")){
             standalone.setTouchable(Touchable.disabled);
             multijugador.setTouchable(Touchable.disabled);
+            game.batch.draw(new Texture(Gdx.files.internal("UI/cross.png")),Gdx.graphics.getWidth() * .005f, Gdx.graphics.getHeight() * .03f,Gdx.graphics.getWidth() * .05f, Gdx.graphics.getHeight() * .10f);
+        } else {
+            game.batch.draw(new Texture(Gdx.files.internal("UI/check.png")),Gdx.graphics.getWidth()* .005f,Gdx.graphics.getHeight() * .03f,Gdx.graphics.getWidth() * .05f, Gdx.graphics.getHeight() * .10f);
         }
+
+        if(game.cicle.equals("")){
+            standalone.setTouchable(Touchable.disabled);
+            multijugador.setTouchable(Touchable.disabled);
+            game.batch.draw(new Texture(Gdx.files.internal("UI/cross.png")),Gdx.graphics.getWidth() * .005f, Gdx.graphics.getHeight() * -.01f,Gdx.graphics.getWidth() *.05f, Gdx.graphics.getHeight() * .10f);
+        } else {
+            game.batch.draw(new Texture(Gdx.files.internal("UI/check.png")),Gdx.graphics.getWidth()* .005f,Gdx.graphics.getHeight() * -.01f,Gdx.graphics.getWidth() *.05f, Gdx.graphics.getHeight() * .10f);
+        }
+
+        if(game.personatge == null){
+            standalone.setTouchable(Touchable.disabled);
+            multijugador.setTouchable(Touchable.disabled);
+            game.batch.draw(new Texture(Gdx.files.internal("UI/cross.png")),Gdx.graphics.getWidth() * .005f, Gdx.graphics.getHeight() * .07f,Gdx.graphics.getWidth() *.05f, Gdx.graphics.getHeight() * .10f);
+        } else {
+            game.batch.draw(new Texture(Gdx.files.internal("UI/check.png")),Gdx.graphics.getWidth()* .005f,Gdx.graphics.getHeight() * .07f,Gdx.graphics.getWidth() *.05f, Gdx.graphics.getHeight() * .10f);
+        }
+
         game.batch.end();
 
         stage.draw();
@@ -137,46 +161,5 @@ public class TitleScreen extends ScreenAdapter {
         Gdx.input.setInputProcessor(null);
     }
 
-    public Button createButton(String labelStr, float x, float y, float width, float height, int size,ClickListener listener) {
-        Skin skin = new Skin();
-        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/8-BIT WONDER.TTF"));
-        FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
-
-        parameter.size = size;
-        parameter.borderWidth = 2f;
-        parameter.color = Color.BLACK;
-        parameter.borderColor = Color.WHITE;
-
-        Label.LabelStyle labelStyle = new Label.LabelStyle();
-        labelStyle.font = generator.generateFont(parameter);
-        skin.add("default", labelStyle);
-
-        // Crear el estilo del botón
-        Button.ButtonStyle buttonStyle = new Button.ButtonStyle();
-        buttonStyle.up = new TextureRegionDrawable(new TextureRegion(new Texture(Gdx.files.internal("UI/button_up.png"))));
-        buttonStyle.down = new TextureRegionDrawable(new TextureRegion(new Texture(Gdx.files.internal("UI/button_down.png"))));
-
-        // Crear el botón con el estilo y las dimensiones especificadas
-        Button button = new Button(buttonStyle);
-        button.setPosition(x, y);
-        button.setWidth(width);
-        button.setHeight(height);
-
-        // Crear la etiqueta con el texto especificado y el estilo por defecto
-        Label label = new Label(labelStr, skin);
-        label.setAlignment(Align.center); // centrar el texto en la etiqueta
-
-        // Agregar la etiqueta al botón
-        button.add(label);
-
-        // Agregar el listener al botón
-        button.addListener(listener);
-
-        // Agregar el botón al escenario
-        stage.addActor(button);
-
-        // Devolver el botón creado
-        return button;
-    }
 
 }

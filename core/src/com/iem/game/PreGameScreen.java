@@ -27,7 +27,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 
-public class SelectionCharacterScreen extends ScreenAdapter {
+public class PreGameScreen extends ScreenAdapter {
 
     proyectoIEM game;
     private OrthographicCamera camera;
@@ -52,7 +52,7 @@ public class SelectionCharacterScreen extends ScreenAdapter {
     //Camera
     private Stage stage;
 
-    public SelectionCharacterScreen(proyectoIEM game) {
+    public PreGameScreen(proyectoIEM game) {
         this.game = game;
         camera = new OrthographicCamera();
         viewport = new FitViewport(2048, 1090, camera);
@@ -75,12 +75,11 @@ public class SelectionCharacterScreen extends ScreenAdapter {
         float buttonWidth = Gdx.graphics.getWidth() * BUTTON_WIDTH_PERCENT;
         float buttonHeight = Gdx.graphics.getHeight() * 0.10f;
 
-        stage.addActor(createButton("Seleccionar", Gdx.graphics.getWidth() * .42f, Gdx.graphics.getHeight() * .15f, buttonWidth, buttonHeight, fontSize,new ClickListener(){
+        stage.addActor(createButton("Jugar", Gdx.graphics.getWidth() * .42f, Gdx.graphics.getHeight() * .15f, buttonWidth, buttonHeight, fontSize,new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y)  {
                 game.sound.play(1.0f);
-                game.personatge = walkSheet;
-                game.setScreen(new TitleScreen(game));
+                game.setScreen(new GameScreen(game));
             }
         }));
 
@@ -92,7 +91,7 @@ public class SelectionCharacterScreen extends ScreenAdapter {
             }
         }));
 
-        walkSheet = new Texture(Gdx.files.internal("mario.png"));
+        walkSheet = game.personatge;
         posx = 750;
         posy = 450;
 
@@ -149,7 +148,6 @@ public class SelectionCharacterScreen extends ScreenAdapter {
 
         game.batch.begin();
         game.batch.draw(new Texture(Gdx.files.internal("initBackground.png")),0,0,Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        game.batch.draw(new Texture(Gdx.files.internal("UI/seleccionPersonajeTitle.png")),Gdx.graphics.getWidth()* .25f,Gdx.graphics.getHeight() * .85f,Gdx.graphics.getWidth() *.6f, Gdx.graphics.getHeight() * .1f);
 
         game.batch.draw(selectTexture, Gdx.graphics.getWidth() * .45f, Gdx.graphics.getHeight() * .3f, 0, 0,
                 selectTexture.getRegionWidth(),selectTexture.getRegionHeight(),10,10,0);
