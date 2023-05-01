@@ -118,9 +118,10 @@ public class TitleScreen extends ScreenAdapter {
     public void render(float delta) {
         elapsed += Gdx.graphics.getDeltaTime();
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-        
+
         game.batch.begin();
-        game.batch.draw(GifDecoder.loadGIFAnimation(Animation.PlayMode.LOOP, Gdx.files.internal("initBackground.gif").read()).getKeyFrame(elapsed), 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        // game.batch.draw(GifDecoder.loadGIFAnimation(Animation.PlayMode.LOOP, Gdx.files.internal("initBackground.gif").read()).getKeyFrame(elapsed), 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        game.batch.draw(new Texture(Gdx.files.internal("initBackground.png")),0,0,Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         game.batch.draw(new Texture(Gdx.files.internal("UI/title.png")),Gdx.graphics.getWidth()* .20f,Gdx.graphics.getHeight() * .83f,Gdx.graphics.getWidth() *.6f, Gdx.graphics.getHeight() * .15f);
 
         if(game.alies.equals("")){

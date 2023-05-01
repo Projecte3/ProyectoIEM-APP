@@ -2,6 +2,7 @@ package com.iem.game;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Graphics;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.GL20;
@@ -54,8 +55,6 @@ public class GameScreen extends ScreenAdapter {
 
         camera = new OrthographicCamera();
         viewport = new FitViewport(2048, 1080, camera);
-
-        System.out.println("test: "+screenWidth +", "+screenHeight);
     }
 
     @Override
@@ -127,6 +126,17 @@ public class GameScreen extends ScreenAdapter {
         down = new Rectangle(0, screenHeight * 2/3, screenWidth, screenHeight);
         left = new Rectangle(0, 0, screenWidth/3, screenHeight);
         right = new Rectangle(screenWidth * 2/3, 0, screenWidth, screenHeight);
+
+        Gdx.input.setInputProcessor(new InputAdapter() {
+
+            @Override
+            public boolean keyDown(int keyCode) {
+            if (keyCode == Input.Keys.ESCAPE) {
+                game.setScreen(new TitleScreen(game));
+            }
+            return true;
+            }
+        });
     }
 
     @Override

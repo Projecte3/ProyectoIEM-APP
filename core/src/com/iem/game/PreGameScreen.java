@@ -75,7 +75,7 @@ public class PreGameScreen extends ScreenAdapter {
         float buttonWidth = Gdx.graphics.getWidth() * BUTTON_WIDTH_PERCENT;
         float buttonHeight = Gdx.graphics.getHeight() * 0.10f;
 
-        stage.addActor(createButton("Jugar", Gdx.graphics.getWidth() * .42f, Gdx.graphics.getHeight() * .15f, buttonWidth, buttonHeight, fontSize,new ClickListener(){
+        stage.addActor(createButton("Jugar", Gdx.graphics.getWidth() * .40f, Gdx.graphics.getHeight() * .15f, buttonWidth, buttonHeight, fontSize,new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y)  {
                 game.sound.play(1.0f);
@@ -132,7 +132,7 @@ public class PreGameScreen extends ScreenAdapter {
         selectAnimation[27] = new TextureRegion(walkSheet,88,81,20,39);
 
         //Select Screen Animation
-        marioSelectAnimation = new Animation<TextureRegion>(0.25f,selectAnimation);
+        marioSelectAnimation = new Animation<>(0.25f, selectAnimation);
         batch = new SpriteBatch();
         stateTime = 0f;
 
@@ -148,8 +148,8 @@ public class PreGameScreen extends ScreenAdapter {
 
         game.batch.begin();
         game.batch.draw(new Texture(Gdx.files.internal("initBackground.png")),0,0,Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-
-        game.batch.draw(selectTexture, Gdx.graphics.getWidth() * .45f, Gdx.graphics.getHeight() * .3f, 0, 0,
+        game.batch.draw(new Texture(Gdx.files.internal("UI/previewTitle.png")),Gdx.graphics.getWidth()* .32f,Gdx.graphics.getHeight() * .85f,Gdx.graphics.getWidth() *.4f, Gdx.graphics.getHeight() * .1f);
+        game.batch.draw(selectTexture, Gdx.graphics.getWidth() * .42f, Gdx.graphics.getHeight() * .3f, 0, 0,
                 selectTexture.getRegionWidth(),selectTexture.getRegionHeight(),10,10,0);
         game.batch.end();
 

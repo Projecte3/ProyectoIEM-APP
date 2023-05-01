@@ -91,7 +91,7 @@ public class RankingScreen extends ScreenAdapter {
                 fontSize = 60;
                 break;
             case Desktop:
-                fontSize = 30;
+                fontSize = 40;
                 break;
         }
 
@@ -134,7 +134,8 @@ public class RankingScreen extends ScreenAdapter {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         game.batch.begin();
-        game.batch.draw(GifDecoder.loadGIFAnimation(Animation.PlayMode.LOOP, Gdx.files.internal("ranking.gif").read()).getKeyFrame(elapsed), 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        // game.batch.draw(GifDecoder.loadGIFAnimation(Animation.PlayMode.LOOP, Gdx.files.internal("ranking.gif").read()).getKeyFrame(elapsed), 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        game.batch.draw(new Texture(Gdx.files.internal("initBackground.png")),0,0,Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         game.batch.draw(new Texture(Gdx.files.internal("UI/rankingTitle.png")),Gdx.graphics.getWidth()* .30f,Gdx.graphics.getHeight() * .85f,Gdx.graphics.getWidth() *.4f, Gdx.graphics.getHeight() * .1f);
 
         float yLista = .75f;

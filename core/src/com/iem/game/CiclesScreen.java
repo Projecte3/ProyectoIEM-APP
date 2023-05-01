@@ -119,7 +119,8 @@ public class CiclesScreen extends ScreenAdapter {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         
         game.batch.begin();
-        game.batch.draw(GifDecoder.loadGIFAnimation(Animation.PlayMode.LOOP, Gdx.files.internal("initBackground.gif").read()).getKeyFrame(elapsed), 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        // game.batch.draw(GifDecoder.loadGIFAnimation(Animation.PlayMode.LOOP, Gdx.files.internal("initBackground.gif").read()).getKeyFrame(elapsed), 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        game.batch.draw(new Texture(Gdx.files.internal("initBackground.png")),0,0,Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         game.batch.draw(new Texture(Gdx.files.internal("UI/ciclesTitle.png")),Gdx.graphics.getWidth()* .25f,Gdx.graphics.getHeight() * .80f,Gdx.graphics.getWidth() *.5f, Gdx.graphics.getHeight() * .15f);
         game.batch.end();
 
