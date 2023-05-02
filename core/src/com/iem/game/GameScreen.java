@@ -16,6 +16,13 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.iem.utils.APIPost;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.io.IOException;
+import java.util.ArrayList;
 
 public class GameScreen extends ScreenAdapter {
     // Obtener las dimensiones de la pantalla del dispositivo
@@ -226,5 +233,26 @@ public class GameScreen extends ScreenAdapter {
                 }
             }
         return IDLE;
+    }
+
+    public ArrayList<String> getTotems(){
+        ArrayList<String> totems = new ArrayList<>();
+
+        JSONObject obj = new JSONObject();
+
+        try {
+            StringBuffer sb = new APIPost().sendPost("https://proyecteiem-api-production.up.railway.app/get_totems",obj);
+            JSONObject objResponse = new JSONObject(sb.toString());
+            JSONArray cicles = objResponse.getJSONArray("result");
+
+            for (int i = 0; i < cicles.length(); i++) {
+                JSONObject totem = cicles.getJSONObject(i);
+                String totemStr = totem.getString("nom");
+                totems.add(totemStr);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return totems;
     }
 }
