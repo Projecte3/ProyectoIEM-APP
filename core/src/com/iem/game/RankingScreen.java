@@ -2,6 +2,7 @@ package com.iem.game;
 
 import static com.iem.utils.Utils.createButton;
 import static com.iem.utils.Utils.createFont;
+import static com.iem.utils.Utils.createLabel;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
@@ -25,6 +26,7 @@ import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.iem.utils.APIPost;
 import com.iem.utils.GifDecoder;
+import com.iem.utils.Utils;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -52,6 +54,8 @@ public class RankingScreen extends ScreenAdapter {
     Stage stage;
     float elapsed;
 
+    boolean flag;
+
     public RankingScreen(proyectoIEM game) throws JSONException {
         this.game = game;
 
@@ -65,7 +69,7 @@ public class RankingScreen extends ScreenAdapter {
         test.put("nombre_elements", nombre_elements);
         int cnt = 1;
         try {
-            StringBuffer sb = new APIPost().sendPost("https://proyecteiem-api-production.up.railway.app/get_ranking",test);
+            StringBuffer sb = new APIPost().sendPost("https://proyecteiem-api-production.up.railway.app/get_rankig",test);
             JSONObject objResponse = new JSONObject(sb.toString());
             JSONArray players = objResponse.getJSONArray("result");
             for (int i = 0; i < players.length(); i++) {
@@ -77,8 +81,9 @@ public class RankingScreen extends ScreenAdapter {
                 cnt++;
                 listaPlayers.add(playerStr);
             }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+            flag = false;
+        } catch (Exception e) {
+            flag = true;
         }
     }
 
@@ -124,6 +129,10 @@ public class RankingScreen extends ScreenAdapter {
                 game.setScreen(new TitleScreen(game));
             }
         }));
+
+        if (flag){
+            stage.addActor(createLabel("No hi ha connexió\n amb el servidor", Gdx.graphics.getWidth() * 0.3f, Gdx.graphics.getHeight() * 0.5f, fontSize + 10));
+        }
 
         Gdx.input.setInputProcessor(stage);
     }
