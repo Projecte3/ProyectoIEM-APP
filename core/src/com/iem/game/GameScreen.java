@@ -296,13 +296,4 @@ public class GameScreen extends ScreenAdapter {
         return totems;
     }
 
-    private float getMaxTextWidth() {
-        float maxWidth = 0;
-        for (String text : totems) {
-            GlyphLayout layout = new GlyphLayout();
-            layout.setText(font, text);
-            maxWidth = Math.max(maxWidth, layout.width);
-        }
-        return maxWidth;
-    }
 }
