@@ -9,6 +9,8 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
@@ -23,12 +25,15 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Random;
 
 public class GameScreen extends ScreenAdapter {
     // Obtener las dimensiones de la pantalla del dispositivo
     Graphics graphics = Gdx.graphics;
     float screenWidth = graphics.getWidth();
     float screenHeight = graphics.getHeight();
+    ArrayList<String> totems = new ArrayList<>();
+    Random random = new Random();
 
     proyectoIEM game;
     OrthographicCamera camera;
@@ -56,7 +61,18 @@ public class GameScreen extends ScreenAdapter {
     float lastSend = 0f;
 
     //Camera
+    BitmapFont font = new BitmapFont();
+    float scrollPosition = 0f;
+    int currentTextIndex = 0;
+    float timer = 0;
+    int currentPosition = 0;
+    float delay = 0.1f;
+    float scrollTimer = 0;
+    int maxVisibleChars = 20;
+    float scrollSpeed = 50;
 
+    float randomNumx = random.nextFloat() * 1000;
+    float randomNumy = random.nextFloat() * 500;
     public GameScreen(proyectoIEM game) {
         this.game = game;
 
@@ -144,6 +160,8 @@ public class GameScreen extends ScreenAdapter {
             return true;
             }
         });
+
+        getTotems();
     }
 
     @Override
@@ -162,13 +180,13 @@ public class GameScreen extends ScreenAdapter {
 
         int direction = virtual_joystick_control();
 
-        switch (direction){
+        switch (direction) {
             //IDLE ANIMATION
             case 0:
                 batch.begin();
                 IDLEMarioDown = new Animation<>(0.25f, IDLEFrameDown);
                 batch.draw(IDLEDown, posx, posy, 0, 0,
-                        IDLEDown.getRegionWidth(),IDLEDown.getRegionHeight(),spriteSizeX,spriteSizeY,0);
+                        IDLEDown.getRegionWidth(), IDLEDown.getRegionHeight(), spriteSizeX, spriteSizeY, 0);
                 batch.end();
                 break;
             //GO UP ANIMATION
@@ -176,8 +194,8 @@ public class GameScreen extends ScreenAdapter {
                 IDLEMarioDown = new Animation<>(0.25f, walkFrameUP);
                 batch.begin();
                 posy += 20;
-                batch.draw(walkUP, posx, posy,0, 0,
-                        walkUP.getRegionWidth(),walkUP.getRegionHeight(),spriteSizeX,spriteSizeY,0);
+                batch.draw(walkUP, posx, posy, 0, 0,
+                        walkUP.getRegionWidth(), walkUP.getRegionHeight(), spriteSizeX, spriteSizeY, 0);
                 batch.end();
                 break;
             //GO DOWN ANIMATION
@@ -185,8 +203,8 @@ public class GameScreen extends ScreenAdapter {
                 IDLEMarioDown = new Animation<>(0.25f, walkFrameDown);
                 batch.begin();
                 posy -= 20;
-                batch.draw(walkDown, posx, posy,0, 0,
-                        walkDown.getRegionWidth(),walkDown.getRegionHeight(),spriteSizeX,spriteSizeY,0);
+                batch.draw(walkDown, posx, posy, 0, 0,
+                        walkDown.getRegionWidth(), walkDown.getRegionHeight(), spriteSizeX, spriteSizeY, 0);
                 batch.end();
                 break;
             //GO LEFT ANIMATION
@@ -194,8 +212,8 @@ public class GameScreen extends ScreenAdapter {
                 IDLEMarioDown = new Animation<>(0.25f, walkFrame);
                 batch.begin();
                 posx -= 20;
-                batch.draw(walkFrameX, posx, posy,0  +  walkFrameX.getRegionWidth(), 0,
-                        walkFrameX.getRegionWidth(),walkFrameX.getRegionHeight(),-spriteSizeX,spriteSizeY,0);
+                batch.draw(walkFrameX, posx, posy, 0 + walkFrameX.getRegionWidth(), 0,
+                        walkFrameX.getRegionWidth(), walkFrameX.getRegionHeight(), -spriteSizeX, spriteSizeY, 0);
                 batch.end();
                 break;
             //GO RIGHT ANIMATION
@@ -203,12 +221,34 @@ public class GameScreen extends ScreenAdapter {
                 IDLEMarioDown = new Animation<>(0.25f, walkFrame);
                 batch.begin();
                 posx += 20;
-                batch.draw(walkFrameX, posx, posy,0, 0,
-                        walkFrameX.getRegionWidth(),walkFrameX.getRegionHeight(),spriteSizeX,spriteSizeY,0);
+                batch.draw(walkFrameX, posx, posy, 0, 0,
+                        walkFrameX.getRegionWidth(), walkFrameX.getRegionHeight(), spriteSizeX, spriteSizeY, 0);
                 batch.end();
                 break;
         }
+        //TODO funcion generar otros textos en otras coordenadas
+        String currentText = totems.get(currentTextIndex);
+        float scrollAmount = scrollSpeed * scrollTimer;
+        int visibleChars = Math.min(maxVisibleChars, currentText.length() - currentPosition);
+        String visibleText = currentText.substring(currentPosition, currentPosition + visibleChars);
+        batch.begin();
+        font.draw(batch, visibleText, randomNumx / 2f, randomNumy / 2f);
+        batch.end();
 
+        timer += delta;
+        if (timer >= delay) {
+            currentPosition++;
+            if (currentPosition >= currentText.length()) {
+                currentPosition = visibleChars - 1; // Reset to last visible character position
+            }
+            timer = 0;
+        }
+        scrollTimer += delta;
+        if (scrollAmount >= font.getSpaceXadvance() * visibleChars) {
+            scrollTimer = 0;
+        }
+        float speed = 10f;
+        scrollPosition += speed * delta;
     }
 
     @Override
@@ -236,10 +276,8 @@ public class GameScreen extends ScreenAdapter {
     }
 
     public ArrayList<String> getTotems(){
-        ArrayList<String> totems = new ArrayList<>();
-
         JSONObject obj = new JSONObject();
-
+        obj.put("cicleNom",game.cicle);
         try {
             StringBuffer sb = new APIPost().sendPost("https://proyecteiem-api-production.up.railway.app/get_totems",obj);
             JSONObject objResponse = new JSONObject(sb.toString());
@@ -250,9 +288,21 @@ public class GameScreen extends ScreenAdapter {
                 String totemStr = totem.getString("nom");
                 totems.add(totemStr);
             }
+
+
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
         return totems;
+    }
+
+    private float getMaxTextWidth() {
+        float maxWidth = 0;
+        for (String text : totems) {
+            GlyphLayout layout = new GlyphLayout();
+            layout.setText(font, text);
+            maxWidth = Math.max(maxWidth, layout.width);
+        }
+        return maxWidth;
     }
 }
