@@ -40,7 +40,7 @@ public class GameScreen extends ScreenAdapter {
     FitViewport viewport;
 
     //ANIMATION ATTRIBUTES
-    Texture walkSheet, background;
+    Texture walkSheet, background, egg;
     TextureRegion IDLEFrameDown[] = new TextureRegion[1];
     TextureRegion IDLEFrameUp[] = new TextureRegion[1];
     TextureRegion IDLEFrameX[] = new TextureRegion[4];
@@ -49,7 +49,9 @@ public class GameScreen extends ScreenAdapter {
     TextureRegion walkFrameUP[] = new TextureRegion[5];
     TextureRegion walkFrameDown[] = new TextureRegion[5];
 
-    Animation<TextureRegion> IDLEMarioDown, IDLEMarioUP,IDLEMarioX, walkMario, walkMarioUP, walkMarioDown;
+    TextureRegion eggRegion[] = new TextureRegion[1];
+
+    Animation<TextureRegion> IDLEMarioDown, IDLEMarioUP,IDLEMarioX, walkMario, walkMarioUP, walkMarioDown, eggAnimation;
 
     float stateTime;
     int spriteSizeX, spriteSizeY;
@@ -96,6 +98,7 @@ public class GameScreen extends ScreenAdapter {
 
         walkSheet = new Texture(Gdx.files.internal("mario.png"));
         background = new Texture(Gdx.files.internal("Grass_Sample.png"));
+        egg = new Texture(Gdx.files.internal("eggs.png"));
         posx = 750;
         posy = 450;
 
@@ -140,6 +143,10 @@ public class GameScreen extends ScreenAdapter {
         walkMario = new Animation<>(0.25f, walkFrame);
         walkMarioUP = new Animation<>(0.25f, walkFrameUP);
         walkMarioDown = new Animation<>(0.25f, walkFrameDown);
+
+        //EGG
+        eggRegion[0] = new TextureRegion(egg,4,4,20,20);
+        eggAnimation = new Animation<>(0.25f, eggRegion);
 
         batch = new SpriteBatch();
         stateTime = 0f;
@@ -230,9 +237,11 @@ public class GameScreen extends ScreenAdapter {
         String currentText = totems.get(currentTextIndex);
         float scrollAmount = scrollSpeed * scrollTimer;
         int visibleChars = Math.min(maxVisibleChars, currentText.length() - currentPosition);
+        float imagePos = randomNumx / 2f;
         String visibleText = currentText.substring(currentPosition, currentPosition + visibleChars);
         batch.begin();
         font.draw(batch, visibleText, randomNumx / 2f, randomNumy / 2f);
+
         batch.end();
 
         timer += delta;
