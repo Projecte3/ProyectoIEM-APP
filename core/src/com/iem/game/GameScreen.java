@@ -17,14 +17,17 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.iem.utils.APIPost;
+import com.iem.utils.Utils;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Random;
 
 public class GameScreen extends ScreenAdapter {
@@ -32,8 +35,12 @@ public class GameScreen extends ScreenAdapter {
     Graphics graphics = Gdx.graphics;
     float screenWidth = graphics.getWidth();
     float screenHeight = graphics.getHeight();
-    ArrayList<String> totems = new ArrayList<>();
+    ArrayList<String> goodTotems = new ArrayList<>();
+    ArrayList<String> badTotems = new ArrayList<>();
     Random random = new Random();
+
+    int itemsCorrectes = 0;
+    int itemsIncorrectes = 0;
 
     proyectoIEM game;
     OrthographicCamera camera;
@@ -61,6 +68,7 @@ public class GameScreen extends ScreenAdapter {
     Rectangle up, down, left, right;
     final int IDLE=0, UP=1, DOWN=2, LEFT=3, RIGHT=4;
     float lastSend = 0f;
+    boolean occupationsShown = false;
 
     //Camera
     BitmapFont font = new BitmapFont();
@@ -75,6 +83,9 @@ public class GameScreen extends ScreenAdapter {
 
     float randomNumx = random.nextFloat() * 1000;
     float randomNumy = random.nextFloat() * 500;
+    Stage stage;
+    int fontSize;
+
     public GameScreen(proyectoIEM game) {
         this.game = game;
 
@@ -84,13 +95,16 @@ public class GameScreen extends ScreenAdapter {
 
     @Override
     public void show() {
+        stage = new Stage();
 
         switch (Gdx.app.getType()){
             case Android:
+                fontSize = 60;
                 spriteSizeX = 5;
                 spriteSizeY = 5;
                 break;
             case Desktop:
+                fontSize = 20;
                 spriteSizeX = 2;
                 spriteSizeY = 2;
                 break;
@@ -157,6 +171,9 @@ public class GameScreen extends ScreenAdapter {
         left = new Rectangle(0, 0, screenWidth/3, screenHeight);
         right = new Rectangle(screenWidth * 2/3, 0, screenWidth, screenHeight);
 
+        stage.addActor(Utils.createLabel("Items correctes: " + itemsCorrectes, Gdx.graphics.getWidth() * .01f, Gdx.graphics.getHeight() * .08f, fontSize));
+        stage.addActor(Utils.createLabel("Items incorrectes: " + itemsIncorrectes, Gdx.graphics.getWidth() * .01f, Gdx.graphics.getHeight() * .04f, fontSize));
+
         Gdx.input.setInputProcessor(new InputAdapter() {
 
             @Override
@@ -167,8 +184,6 @@ public class GameScreen extends ScreenAdapter {
             return true;
             }
         });
-
-        getTotems();
     }
 
     @Override
@@ -233,7 +248,11 @@ public class GameScreen extends ScreenAdapter {
                 batch.end();
                 break;
         }
-        //TODO funcion generar otros textos en otras coordenadas
+
+        stage.draw();
+        stage.act();
+
+        /*
         String currentText = totems.get(currentTextIndex);
         float scrollAmount = scrollSpeed * scrollTimer;
         int visibleChars = Math.min(maxVisibleChars, currentText.length() - currentPosition);
@@ -258,6 +277,7 @@ public class GameScreen extends ScreenAdapter {
         }
         float speed = 10f;
         scrollPosition += speed * delta;
+         */
     }
 
     @Override
@@ -284,25 +304,29 @@ public class GameScreen extends ScreenAdapter {
         return IDLE;
     }
 
-    public ArrayList<String> getTotems(){
+
+    public void setTotems(){
         JSONObject obj = new JSONObject();
         obj.put("cicleNom",game.cicle);
         try {
             StringBuffer sb = new APIPost().sendPost("https://proyecteiem-api-production.up.railway.app/get_totems",obj);
             JSONObject objResponse = new JSONObject(sb.toString());
-            JSONArray cicles = objResponse.getJSONArray("result");
+            JSONObject result = objResponse.getJSONObject("result");
 
-            for (int i = 0; i < cicles.length(); i++) {
-                JSONObject totem = cicles.getJSONObject(i);
-                String totemStr = totem.getString("nom");
-                totems.add(totemStr);
-            }
+            JSONObject totemsGenerados = result.getJSONObject("totemsGenerados");
 
+            JSONObject buenos = totemsGenerados.getJSONObject("buenos");
+            JSONObject malos = totemsGenerados.getJSONObject("malos");
+
+            String nomCicleBueno = buenos.getString("cicleNom");
+            JSONArray totemsBuenos = buenos.getJSONArray("totems");
+
+            String nomCicleMalo = malos.getString("cicleNom");
+            JSONArray totemsMalos = malos.getJSONArray("totems");
 
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        return totems;
     }
 
 }
