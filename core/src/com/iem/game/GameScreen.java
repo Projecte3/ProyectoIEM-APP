@@ -74,7 +74,7 @@ public class GameScreen extends ScreenAdapter {
     float scrollPosition = 0f;
     int currentTextIndex = 0;
     int currentPosition = 0;
-    float delay = 0.1f;
+    float delay = 0.7f;
     float scrollTimer = 0;
     int maxVisibleChars = 20;
     float scrollSpeed = 0.5f;
