@@ -14,10 +14,13 @@ import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.Intersector;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.iem.utils.APIPost;
 import com.iem.utils.Utils;
@@ -31,16 +34,18 @@ import java.util.Collections;
 import java.util.Random;
 
 public class GameScreen extends ScreenAdapter {
-    // Obtener las dimensiones de la pantalla del dispositivo
-    Graphics graphics = Gdx.graphics;
-    float screenWidth = graphics.getWidth();
-    float screenHeight = graphics.getHeight();
+    float screenWidth = Gdx.graphics.getWidth();
+    float screenHeight = Gdx.graphics.getHeight();
     ArrayList<String> goodTotems = new ArrayList<>();
     ArrayList<String> badTotems = new ArrayList<>();
+    ArrayList<Vector2> goodTotemPositions = new ArrayList<>();
+    ArrayList<Vector2> badTotemPositions = new ArrayList<>();
+
     Random random = new Random();
 
-    int itemsCorrectes = 0;
-    int itemsIncorrectes = 0;
+    int itemsCorrectes;
+    int itemsIncorrectes;
+    float timer;
 
     proyectoIEM game;
     OrthographicCamera camera;
@@ -65,16 +70,16 @@ public class GameScreen extends ScreenAdapter {
     SpriteBatch batch;
     float posx, posy;
 
+    Rectangle playerRect;
+
     Rectangle up, down, left, right;
     final int IDLE=0, UP=1, DOWN=2, LEFT=3, RIGHT=4;
     float lastSend = 0f;
-    boolean occupationsShown = false;
 
     //Camera
-    BitmapFont font = new BitmapFont();
+    BitmapFont font = Utils.createFont(15);
     float scrollPosition = 0f;
     int currentTextIndex = 0;
-    float timer = 0;
     int currentPosition = 0;
     float delay = 0.1f;
     float scrollTimer = 0;
@@ -84,6 +89,10 @@ public class GameScreen extends ScreenAdapter {
     float randomNumx = random.nextFloat() * 1000;
     float randomNumy = random.nextFloat() * 500;
     Stage stage;
+    Label totemsCorrectesLabel;
+    Label totemsIncorrectesLabel;
+    Label timerLabel;
+
     int fontSize;
 
     public GameScreen(proyectoIEM game) {
@@ -115,6 +124,7 @@ public class GameScreen extends ScreenAdapter {
         egg = new Texture(Gdx.files.internal("eggs.png"));
         posx = 750;
         posy = 450;
+        playerRect = new Rectangle();
 
         //IDLE FRAME DOWN
         IDLEFrameDown[0] = new TextureRegion(walkSheet,117,123,20,39);
@@ -171,19 +181,60 @@ public class GameScreen extends ScreenAdapter {
         left = new Rectangle(0, 0, screenWidth/3, screenHeight);
         right = new Rectangle(screenWidth * 2/3, 0, screenWidth, screenHeight);
 
-        stage.addActor(Utils.createLabel("Items correctes: " + itemsCorrectes, Gdx.graphics.getWidth() * .01f, Gdx.graphics.getHeight() * .08f, fontSize));
-        stage.addActor(Utils.createLabel("Items incorrectes: " + itemsIncorrectes, Gdx.graphics.getWidth() * .01f, Gdx.graphics.getHeight() * .04f, fontSize));
+        setTotems();
 
-        Gdx.input.setInputProcessor(new InputAdapter() {
+        float minDistance = font.getSpaceXadvance() * 4;
 
-            @Override
-            public boolean keyDown(int keyCode) {
-            if (keyCode == Input.Keys.ESCAPE) {
-                game.setScreen(new TitleScreen(game));
-            }
-            return true;
-            }
-        });
+        for (String totem : goodTotems) {
+            float x, y;
+            boolean tooClose;
+
+            do {
+                x = MathUtils.random(0, screenWidth - font.getSpaceXadvance() * totem.length());
+                y = MathUtils.random(0, screenHeight - font.getLineHeight());
+
+                tooClose = false;
+                for (Vector2 position : goodTotemPositions) {
+                    if (Vector2.dst(x, y, position.x, position.y) < minDistance) {
+                        tooClose = true;
+                        break;
+                    }
+                }
+            } while (tooClose);
+
+            movingTotem(x, y, goodTotemPositions);
+        }
+
+        for (String totem : badTotems) {
+            float x, y;
+            boolean tooClose;
+
+            do {
+                x = MathUtils.random(0, screenWidth - font.getSpaceXadvance() * totem.length());
+                y = MathUtils.random(0, screenHeight - font.getLineHeight());
+
+                tooClose = false;
+                for (Vector2 position : badTotemPositions) {
+                    if (Vector2.dst(x, y, position.x, position.y) < minDistance) {
+                        tooClose = true;
+                        break;
+                    }
+                }
+            } while (tooClose);
+
+            movingTotem(x, y, badTotemPositions);
+        }
+
+
+        totemsCorrectesLabel = Utils.createLabel("Totems correctes: " + itemsCorrectes, Gdx.graphics.getWidth() * .01f, Gdx.graphics.getHeight() * .08f, fontSize);
+        totemsIncorrectesLabel = Utils.createLabel("Totems incorrectes: " + itemsIncorrectes, Gdx.graphics.getWidth() * .01f, Gdx.graphics.getHeight() * .04f, fontSize);
+        timerLabel = Utils.createLabel("00:00", Gdx.graphics.getWidth() * .475f, Gdx.graphics.getHeight() * .95f, fontSize + 40);
+
+        stage.addActor(totemsCorrectesLabel);
+        stage.addActor(totemsIncorrectesLabel);
+        stage.addActor(timerLabel);
+
+        Gdx.input.setInputProcessor(stage);
     }
 
     @Override
@@ -195,58 +246,161 @@ public class GameScreen extends ScreenAdapter {
 
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         stateTime += Gdx.graphics.getDeltaTime();
+        timerLabel.setText(String.format("%d:%02d", Math.round(stateTime / 60), Math.round(stateTime % 60)));
 
         batch.begin();
         batch.draw(background, 0 , 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        for (int i = 0; i < goodTotemPositions.size(); i++) {
+            Vector2 position = goodTotemPositions.get(i);
+            String totem = goodTotems.get(i);
+            float x = position.x;
+            float y = position.y;
+            float scrollAmount = scrollSpeed * scrollTimer;
+            int visibleChars = Math.min(maxVisibleChars, totem.length() - currentPosition);
+            String visibleText = totem.substring(currentPosition, currentPosition + visibleChars);
+
+            // TODO Hacer que el texto se mueva como antes
+            /*
+            timer += delta;
+            if (timer >= delay) {
+                currentPosition++;
+                if (currentPosition >= totem.length()) {
+                    currentPosition = visibleChars - 1; // Reset to last visible character position
+                }
+                timer = 0;
+            }
+            scrollTimer += delta;
+            if (scrollAmount >= font.getSpaceXadvance() * visibleChars) {
+                scrollTimer = 0;
+            }
+            float speed = 10f;
+            scrollPosition += speed * delta;
+            */
+
+            Rectangle bounds = new Rectangle(x, y, 200, 50);
+            if (bounds.contains(playerRect)) {
+                game.goodItem.play(1.0f);
+                goodTotems.remove(i);
+                goodTotemPositions.remove(i);
+                itemsCorrectes--;
+                totemsCorrectesLabel.setText("Totems correctes: " + itemsCorrectes);
+            }
+            font.draw(batch, visibleText, x, y);
+        }
+
+        for (int i = 0; i < badTotemPositions.size(); i++) {
+            Vector2 position = badTotemPositions.get(i);
+            String totem = badTotems.get(i);
+            float x = position.x;
+            float y = position.y;
+            float scrollAmount = scrollSpeed * scrollTimer;
+            int visibleChars = Math.min(maxVisibleChars, totem.length() - currentPosition);
+            String visibleText = totem.substring(currentPosition, currentPosition + visibleChars);
+
+            /*
+            timer += delta;
+            if (timer >= delay) {
+                currentPosition++;
+                if (currentPosition >= totem.length()) {
+                    currentPosition = visibleChars - 1; // Reset to last visible character position
+                }
+                timer = 0;
+            }
+            scrollTimer += delta;
+            if (scrollAmount >= font.getSpaceXadvance() * visibleChars) {
+                scrollTimer = 0;
+            }
+            float speed = 10f;
+            scrollPosition += speed * delta;
+            */
+
+            Rectangle bounds = new Rectangle(x, y, 200, 100);
+            if (bounds.contains(playerRect)) {
+                game.badItem.play(1.0f);
+                badTotems.remove(i);
+                badTotemPositions.remove(i);
+
+                itemsIncorrectes--;
+                totemsIncorrectesLabel.setText("Totems incorrectes: " + itemsIncorrectes);
+            }
+
+            font.draw(batch, visibleText, x, y);
+        }
+
         batch.end();
 
         int direction = virtual_joystick_control();
 
         switch (direction) {
+
             //IDLE ANIMATION
             case 0:
                 batch.begin();
                 IDLEMarioDown = new Animation<>(0.25f, IDLEFrameDown);
+                playerRect.setPosition(posx, posy);
+                playerRect.setSize(spriteSizeX, spriteSizeY);
                 batch.draw(IDLEDown, posx, posy, 0, 0,
                         IDLEDown.getRegionWidth(), IDLEDown.getRegionHeight(), spriteSizeX, spriteSizeY, 0);
                 batch.end();
+
+                playerRect.setPosition(posx, posy);
                 break;
             //GO UP ANIMATION
             case 1:
                 IDLEMarioDown = new Animation<>(0.25f, walkFrameUP);
                 batch.begin();
                 posy += 20;
+                playerRect.setPosition(posx, posy);
+                playerRect.setSize(spriteSizeX, spriteSizeY);
                 batch.draw(walkUP, posx, posy, 0, 0,
                         walkUP.getRegionWidth(), walkUP.getRegionHeight(), spriteSizeX, spriteSizeY, 0);
                 batch.end();
+
                 break;
             //GO DOWN ANIMATION
             case 2:
                 IDLEMarioDown = new Animation<>(0.25f, walkFrameDown);
                 batch.begin();
                 posy -= 20;
+                playerRect.setPosition(posx, posy);
+                playerRect.setSize(spriteSizeX, spriteSizeY);
                 batch.draw(walkDown, posx, posy, 0, 0,
                         walkDown.getRegionWidth(), walkDown.getRegionHeight(), spriteSizeX, spriteSizeY, 0);
                 batch.end();
+
                 break;
             //GO LEFT ANIMATION
             case 3:
                 IDLEMarioDown = new Animation<>(0.25f, walkFrame);
                 batch.begin();
                 posx -= 20;
+                playerRect.setPosition(posx, posy);
+                playerRect.setSize(spriteSizeX, spriteSizeY);
                 batch.draw(walkFrameX, posx, posy, 0 + walkFrameX.getRegionWidth(), 0,
                         walkFrameX.getRegionWidth(), walkFrameX.getRegionHeight(), -spriteSizeX, spriteSizeY, 0);
+                playerRect.setPosition(posx, posy);
                 batch.end();
+
                 break;
             //GO RIGHT ANIMATION
             case 4:
                 IDLEMarioDown = new Animation<>(0.25f, walkFrame);
                 batch.begin();
                 posx += 20;
+                playerRect.setPosition(posx, posy);
+                playerRect.setSize(spriteSizeX, spriteSizeY);
                 batch.draw(walkFrameX, posx, posy, 0, 0,
                         walkFrameX.getRegionWidth(), walkFrameX.getRegionHeight(), spriteSizeX, spriteSizeY, 0);
+                playerRect.setPosition(posx, posy);
                 batch.end();
+
                 break;
+        }
+
+
+
+        if(itemsCorrectes == 0){
+            game.setScreen(new EndScreen(game, stateTime, 5 - itemsCorrectes, 5 - itemsIncorrectes));
         }
 
         stage.draw();
@@ -285,6 +439,11 @@ public class GameScreen extends ScreenAdapter {
         Gdx.input.setInputProcessor(null);
     }
 
+    public void movingTotem(float x, float y, ArrayList<Vector2> positions) {
+        positions.add(new Vector2(x, y));
+    }
+
+
     protected int virtual_joystick_control() {
         for(int i=0;i<10;i++)
             if (Gdx.input.isTouched(i)) {
@@ -318,11 +477,18 @@ public class GameScreen extends ScreenAdapter {
             JSONObject buenos = totemsGenerados.getJSONObject("buenos");
             JSONObject malos = totemsGenerados.getJSONObject("malos");
 
-            String nomCicleBueno = buenos.getString("cicleNom");
             JSONArray totemsBuenos = buenos.getJSONArray("totems");
+            for (int i = 0; i < 5; i++) {
+                goodTotems.add(totemsBuenos.getJSONObject(i).getString("nom"));
+            }
 
-            String nomCicleMalo = malos.getString("cicleNom");
             JSONArray totemsMalos = malos.getJSONArray("totems");
+            for (int i = 0; i < 5; i++) {
+                badTotems.add(totemsMalos.getJSONObject(i).getString("nom"));
+            }
+
+            itemsCorrectes = goodTotems.size();
+            itemsIncorrectes = badTotems.size();
 
         } catch (IOException e) {
             throw new RuntimeException(e);

@@ -69,17 +69,19 @@ public class RankingScreen extends ScreenAdapter {
         test.put("nombre_elements", nombre_elements);
         int cnt = 1;
         try {
-            StringBuffer sb = new APIPost().sendPost("https://proyecteiem-api-production.up.railway.app/get_rankig",test);
+            StringBuffer sb = new APIPost().sendPost("https://proyecteiem-api-production.up.railway.app/get_ranking",test);
             JSONObject objResponse = new JSONObject(sb.toString());
             JSONArray players = objResponse.getJSONArray("result");
+            System.out.println(players);
             for (int i = 0; i < players.length(); i++) {
                 JSONObject player = players.getJSONObject(i);
-
-                String nom_jugador = player.getString("nom_jugador");
-                int puntuacion = player.getInt("puntuacio");
-                String playerStr = cnt + ". " + nom_jugador +" "+puntuacion;
-                cnt++;
-                listaPlayers.add(playerStr);
+                if(player.getInt("ocult") == 0){
+                    String nom_jugador = player.getString("nom_jugador");
+                    int puntuacion = player.getInt("puntuacio");
+                    String playerStr = cnt + ". " + nom_jugador +" "+puntuacion;
+                    cnt++;
+                    listaPlayers.add(playerStr);
+                }
             }
             flag = false;
         } catch (Exception e) {

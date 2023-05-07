@@ -31,6 +31,8 @@ public class proyectoIEM extends Game {
 	FreeTypeFontParameter titleParameter, fontParameter;
 	Music menuMusic;
 	Sound sound;
+	Sound goodItem;
+	Sound badItem;
 
 	static final float BUTTON_WIDTH_PERCENT = 0.20f;
 	static final float TEXTFIELD_WIDTH_PERCENT = 0.40f;
@@ -47,6 +49,8 @@ public class proyectoIEM extends Game {
 		shapeRenderer = new ShapeRenderer();
 
 		sound = Gdx.audio.newSound(Gdx.files.internal("sounds/mario-coin.mp3"));
+		goodItem = Gdx.audio.newSound(Gdx.files.internal("sounds/itemCorrecte.mp3"));
+		badItem = Gdx.audio.newSound(Gdx.files.internal("sounds/itemIncorrecte.mp3"));
 
 		font = new BitmapFont();
 		title = new BitmapFont();
@@ -68,8 +72,8 @@ public class proyectoIEM extends Game {
 		font = generator.generateFont(fontParameter);
 
 		menuMusic = Gdx.audio.newMusic(Gdx.files.internal("sounds/backgroundMusic.ogg"));
-		menuMusic.setLooping(true);
-		menuMusic.play();
+		// menuMusic.setLooping(true);
+		// menuMusic.play();
 
 		title.getData().setScale(14);
 		font.getData().setScale(7);
