@@ -19,22 +19,6 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 
 public class Utils {
-    public static Dialog dialog(){
-        Skin skin = new Skin();
-
-        Dialog dialog = new Dialog("Warning", skin, "dialog") {
-            public void result(Object obj) {
-                System.out.println("result "+obj);
-            }
-        };
-        dialog.text("Are you sure you want to quit?");
-        dialog.button("Yes", true); //sends "true" as the result
-        dialog.button("No", false);  //sends "false" as the result
-        dialog.key(Input.Keys.ENTER, true); //sends "true" when the ENTER key is pressed
-
-        return dialog;
-    }
-
     public static Button createButton(String labelStr, float x, float y, float width, float height, int size, ClickListener listener) {
         Skin skin = new Skin();
 

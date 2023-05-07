@@ -9,7 +9,6 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-
 public class APIPost {
 
     public StringBuffer sendPost(String url, JSONObject json) throws IOException {

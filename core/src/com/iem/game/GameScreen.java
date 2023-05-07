@@ -1,20 +1,14 @@
 package com.iem.game;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Graphics;
-import com.badlogic.gdx.Input;
-import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
@@ -30,7 +24,6 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Random;
 
 public class GameScreen extends ScreenAdapter {
@@ -183,48 +176,47 @@ public class GameScreen extends ScreenAdapter {
 
         setTotems();
 
-        float minDistance = font.getSpaceXadvance() * 4;
+        float minDistance = font.getSpaceXadvance() * 4; // Calcula la distancia mínima requerida entre los tótems
 
-        for (String totem : goodTotems) {
-            float x, y;
-            boolean tooClose;
+        for (String totem : goodTotems) { // Itera a través de los tótems buenos
+            float x, y; // Coordenadas para la posición del tótem
+            boolean tooClose; // Bandera para verificar si la posición es demasiado cercana a otra posición de tótem ya existente
 
             do {
-                x = MathUtils.random(0, screenWidth - font.getSpaceXadvance() * totem.length());
-                y = MathUtils.random(0, screenHeight - font.getLineHeight());
+                x = MathUtils.random(0, screenWidth - font.getSpaceXadvance() * totem.length()); // Genera una coordenada x aleatoria dentro de la pantalla
+                y = MathUtils.random(0, screenHeight - font.getLineHeight()); // Genera una coordenada y aleatoria dentro de la pantalla
 
-                tooClose = false;
-                for (Vector2 position : goodTotemPositions) {
-                    if (Vector2.dst(x, y, position.x, position.y) < minDistance) {
-                        tooClose = true;
+                tooClose = false; // Inicializa la bandera como falso
+                for (Vector2 position : goodTotemPositions) { // Itera a través de las posiciones de tótem buenos existentes
+                    if (Vector2.dst(x, y, position.x, position.y) < minDistance) { // Verifica si la posición generada está demasiado cerca de otra posición de tótem
+                        tooClose = true; // Si es así, establece la bandera como verdadera y sale del ciclo for
                         break;
                     }
                 }
-            } while (tooClose);
+            } while (tooClose); // Continúa generando nuevas posiciones de tótem hasta que una posición válida sea encontrada
 
-            movingTotem(x, y, goodTotemPositions);
+            movingTotem(x, y, goodTotemPositions); // Llama a la función para mover el tótem a su posición generada
         }
 
-        for (String totem : badTotems) {
-            float x, y;
-            boolean tooClose;
+        for (String totem : badTotems) { // Itera a través de los tótems malos
+            float x, y; // Coordenadas para la posición del tótem
+            boolean tooClose; // Bandera para verificar si la posición es demasiado cercana a otra posición de tótem ya existente
 
             do {
-                x = MathUtils.random(0, screenWidth - font.getSpaceXadvance() * totem.length());
-                y = MathUtils.random(0, screenHeight - font.getLineHeight());
+                x = MathUtils.random(0, screenWidth - font.getSpaceXadvance() * totem.length()); // Genera una coordenada x aleatoria dentro de la pantalla
+                y = MathUtils.random(0, screenHeight - font.getLineHeight()); // Genera una coordenada y aleatoria dentro de la pantalla
 
-                tooClose = false;
-                for (Vector2 position : badTotemPositions) {
-                    if (Vector2.dst(x, y, position.x, position.y) < minDistance) {
-                        tooClose = true;
+                tooClose = false; // Inicializa la bandera como falso
+                for (Vector2 position : badTotemPositions) { // Itera a través de las posiciones de tótem malos existentes
+                    if (Vector2.dst(x, y, position.x, position.y) < minDistance) { // Verifica si la posición generada está demasiado cerca de otra posición de tótem
+                        tooClose = true; // Si es así, establece la bandera como verdadera y sale del ciclo for
                         break;
                     }
                 }
-            } while (tooClose);
+            } while (tooClose); // Continúa generando nuevas posiciones de tótem hasta que una posición válida sea encontrada
 
-            movingTotem(x, y, badTotemPositions);
+            movingTotem(x, y, badTotemPositions); // Llama a la función para mover el tótem a su posición generada
         }
-
 
         totemsCorrectesLabel = Utils.createLabel("Totems correctes: " + itemsCorrectes, Gdx.graphics.getWidth() * .01f, Gdx.graphics.getHeight() * .08f, fontSize);
         totemsIncorrectesLabel = Utils.createLabel("Totems incorrectes: " + itemsIncorrectes, Gdx.graphics.getWidth() * .01f, Gdx.graphics.getHeight() * .04f, fontSize);
@@ -439,11 +431,10 @@ public class GameScreen extends ScreenAdapter {
         Gdx.input.setInputProcessor(null);
     }
 
+    // Función para colocar los totems y añadirlas a un arraylist con sus posiciones distintas
     public void movingTotem(float x, float y, ArrayList<Vector2> positions) {
         positions.add(new Vector2(x, y));
     }
-
-
     protected int virtual_joystick_control() {
         for(int i=0;i<10;i++)
             if (Gdx.input.isTouched(i)) {
@@ -477,16 +468,19 @@ public class GameScreen extends ScreenAdapter {
             JSONObject buenos = totemsGenerados.getJSONObject("buenos");
             JSONObject malos = totemsGenerados.getJSONObject("malos");
 
+            // Recorremos los totems buenos y los añadimos al array de totems
             JSONArray totemsBuenos = buenos.getJSONArray("totems");
             for (int i = 0; i < 5; i++) {
                 goodTotems.add(totemsBuenos.getJSONObject(i).getString("nom"));
             }
 
+            // Recorremos los totems malos y los añadimos al array de totems
             JSONArray totemsMalos = malos.getJSONArray("totems");
             for (int i = 0; i < 5; i++) {
                 badTotems.add(totemsMalos.getJSONObject(i).getString("nom"));
             }
 
+            // Añadimos la cantidad actual de totems que tenga el array
             itemsCorrectes = goodTotems.size();
             itemsIncorrectes = badTotems.size();
 
