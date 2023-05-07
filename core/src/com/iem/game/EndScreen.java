@@ -43,7 +43,7 @@ public class EndScreen extends ScreenAdapter {
         stage = new Stage();
         switch (Gdx.app.getType()){
             case Android:
-                fontSize = 30;
+                fontSize = 60;
                 break;
             case Desktop:
                 fontSize = 25;

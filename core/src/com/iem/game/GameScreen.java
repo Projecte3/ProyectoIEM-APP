@@ -70,14 +70,14 @@ public class GameScreen extends ScreenAdapter {
     float lastSend = 0f;
 
     //Camera
-    BitmapFont font = Utils.createFont(15);
+    BitmapFont font;
     float scrollPosition = 0f;
     int currentTextIndex = 0;
     int currentPosition = 0;
     float delay = 0.1f;
     float scrollTimer = 0;
     int maxVisibleChars = 20;
-    float scrollSpeed = 50;
+    float scrollSpeed = 0.5f;
 
     float randomNumx = random.nextFloat() * 1000;
     float randomNumy = random.nextFloat() * 500;
@@ -98,17 +98,18 @@ public class GameScreen extends ScreenAdapter {
     @Override
     public void show() {
         stage = new Stage();
-
         switch (Gdx.app.getType()){
             case Android:
                 fontSize = 60;
                 spriteSizeX = 5;
                 spriteSizeY = 5;
+                font = Utils.createFont(35);
                 break;
             case Desktop:
                 fontSize = 20;
                 spriteSizeX = 2;
                 spriteSizeY = 2;
+                font = Utils.createFont(20);
                 break;
         }
 
@@ -249,10 +250,14 @@ public class GameScreen extends ScreenAdapter {
             float y = position.y;
             float scrollAmount = scrollSpeed * scrollTimer;
             int visibleChars = Math.min(maxVisibleChars, totem.length() - currentPosition);
-            String visibleText = totem.substring(currentPosition, currentPosition + visibleChars);
+            String visibleText = "";
+            if (currentPosition >= 0 && currentPosition < totem.length()) {
+                visibleText = totem.substring(currentPosition, Math.min(currentPosition + visibleChars, totem.length()));
+                font.draw(batch, visibleText, x, y);
+            }
 
             // TODO Hacer que el texto se mueva como antes
-            /*
+
             timer += delta;
             if (timer >= delay) {
                 currentPosition++;
@@ -265,9 +270,9 @@ public class GameScreen extends ScreenAdapter {
             if (scrollAmount >= font.getSpaceXadvance() * visibleChars) {
                 scrollTimer = 0;
             }
-            float speed = 10f;
+            float speed = 0.5f;
             scrollPosition += speed * delta;
-            */
+
 
             Rectangle bounds = new Rectangle(x, y, 200, 50);
             if (bounds.contains(playerRect)) {
@@ -287,9 +292,17 @@ public class GameScreen extends ScreenAdapter {
             float y = position.y;
             float scrollAmount = scrollSpeed * scrollTimer;
             int visibleChars = Math.min(maxVisibleChars, totem.length() - currentPosition);
-            String visibleText = totem.substring(currentPosition, currentPosition + visibleChars);
+            System.out.println(currentPosition);
+            String visibleText = "";
+            if (currentPosition >= 0 && currentPosition < totem.length()) {
+                try {
+                    visibleText = totem.substring(currentPosition, currentPosition + visibleChars);
+                } catch (StringIndexOutOfBoundsException e) {
+                    visibleText = totem.substring(currentPosition);
+                }
+                font.draw(batch, visibleText, x, y);
+            }
 
-            /*
             timer += delta;
             if (timer >= delay) {
                 currentPosition++;
@@ -302,9 +315,9 @@ public class GameScreen extends ScreenAdapter {
             if (scrollAmount >= font.getSpaceXadvance() * visibleChars) {
                 scrollTimer = 0;
             }
-            float speed = 10f;
+            float speed = 0.5f;
             scrollPosition += speed * delta;
-            */
+
 
             Rectangle bounds = new Rectangle(x, y, 200, 100);
             if (bounds.contains(playerRect)) {
