@@ -14,6 +14,8 @@ import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.iem.utils.APIPost;
+
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -70,7 +72,7 @@ public class EndScreen extends ScreenAdapter {
                 try {
                     game.sound.play(1.0f);
                     guardarRecord();
-                } catch (IOException e) {
+                } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
             }
@@ -102,19 +104,23 @@ public class EndScreen extends ScreenAdapter {
         Gdx.input.setInputProcessor(null);
     }
 
-    public void guardarRecord() throws IOException {
+    public void guardarRecord() throws JSONException {
         JSONObject test = new JSONObject();
         test.put("nom_jugador",game.alies);
         test.put("cicle",game.cicle);
         test.put("items_correctes",totalItemsC);
         test.put("items_incorrectes",totalItemsInc);
-        test.put("temps_emprat",time);
-
-        StringBuffer sb = new APIPost().sendPost("https://proyecteiem-api-production.up.railway.app/set_record",test);
-        JSONObject objResponse = new JSONObject(sb.toString());
-        if(objResponse.getString("status").equals("OK")){
-            stage.addActor(createLabel("Record guardat", Gdx.graphics.getWidth() * 0.75f, Gdx.graphics.getHeight() * 0.20f, fontSize));
-            saved = true;
+        test.put("temps_emprat",Double.parseDouble(String.valueOf(time)));
+        try{
+            StringBuffer sb = new APIPost().sendPost("https://proyecteiem-api-production.up.railway.app/set_record",test);
+            JSONObject objResponse = new JSONObject(sb.toString());
+            if(objResponse.getString("status").equals("OK")){
+                stage.addActor(createLabel("Record guardat", Gdx.graphics.getWidth() * 0.75f, Gdx.graphics.getHeight() * 0.20f, fontSize));
+                saved = true;
+            }
+        } catch(Exception e) {
+            e.printStackTrace();
         }
+
     }
 }
