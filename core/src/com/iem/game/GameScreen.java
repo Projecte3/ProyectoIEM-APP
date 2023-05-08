@@ -225,6 +225,7 @@ public class GameScreen extends ScreenAdapter {
         stage.addActor(timerLabel);
 
         Gdx.input.setInputProcessor(stage);
+
     }
 
     @Override
@@ -236,8 +237,10 @@ public class GameScreen extends ScreenAdapter {
         TextureRegion eggChange = eggAnimation.getKeyFrame(stateTime, true);
 
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        int minutes = (int)(stateTime / 60);
+        int seconds = Math.floorMod((int)stateTime, 60);
+        timerLabel.setText(String.format("%d:%02d", minutes, seconds));
         stateTime += Gdx.graphics.getDeltaTime();
-        timerLabel.setText(String.format("%d:%02d", Math.round(stateTime / 60), Math.round(stateTime % 60)));
 
         batch.begin();
         batch.draw(background, 0 , 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
