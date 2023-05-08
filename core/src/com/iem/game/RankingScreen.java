@@ -79,7 +79,6 @@ public class RankingScreen extends ScreenAdapter {
     @Override
     public void show(){
         stage = new Stage();
-
         switch (Gdx.app.getType()){
             case Android:
                 fontSize = 60;

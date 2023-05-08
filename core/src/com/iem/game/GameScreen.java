@@ -286,8 +286,6 @@ public class GameScreen extends ScreenAdapter {
             font.draw(batch, visibleText, x, y);
         }
 
-
-
         for (int i = 0; i < badTotemPositions.size(); i++) {
             Vector2 position = badTotemPositions.get(i);
             String totem = badTotems.get(i);
@@ -417,33 +415,6 @@ public class GameScreen extends ScreenAdapter {
 
         stage.draw();
         stage.act();
-
-        /*
-        String currentText = totems.get(currentTextIndex);
-        float scrollAmount = scrollSpeed * scrollTimer;
-        int visibleChars = Math.min(maxVisibleChars, currentText.length() - currentPosition);
-        float imagePos = randomNumx / 2f;
-        String visibleText = currentText.substring(currentPosition, currentPosition + visibleChars);
-        batch.begin();
-        font.draw(batch, visibleText, randomNumx / 2f, randomNumy / 2f);
-
-        batch.end();
-
-        timer += delta;
-        if (timer >= delay) {
-            currentPosition++;
-            if (currentPosition >= currentText.length()) {
-                currentPosition = visibleChars - 1; // Reset to last visible character position
-            }
-            timer = 0;
-        }
-        scrollTimer += delta;
-        if (scrollAmount >= font.getSpaceXadvance() * visibleChars) {
-            scrollTimer = 0;
-        }
-        float speed = 10f;
-        scrollPosition += speed * delta;
-         */
     }
 
     @Override

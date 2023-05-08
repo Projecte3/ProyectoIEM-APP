@@ -25,6 +25,7 @@ public class EndScreen extends ScreenAdapter {
     proyectoIEM game;
     Stage stage;
     Button guardar;
+    String dispositiu;
     int fontSize;
     boolean saved;
 
@@ -46,9 +47,11 @@ public class EndScreen extends ScreenAdapter {
         switch (Gdx.app.getType()){
             case Android:
                 fontSize = 60;
+                dispositiu = "Android";
                 break;
             case Desktop:
                 fontSize = 25;
+                dispositiu = "Desktop";
                 break;
         }
 
@@ -111,6 +114,8 @@ public class EndScreen extends ScreenAdapter {
         test.put("items_correctes",totalItemsC);
         test.put("items_incorrectes",totalItemsInc);
         test.put("temps_emprat",Double.parseDouble(String.valueOf(time)));
+        test.put("dispositiu",dispositiu);
+
         try{
             StringBuffer sb = new APIPost().sendPost("https://proyecteiem-api-production.up.railway.app/set_record",test);
             JSONObject objResponse = new JSONObject(sb.toString());
