@@ -15,6 +15,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.iem.utils.APIPost;
 import com.iem.utils.Utils;
@@ -239,6 +240,7 @@ public class GameScreen extends ScreenAdapter {
         for (int i = 0; i < goodTotemPositions.size(); i++) {
             Vector2 position = goodTotemPositions.get(i);
             String totem = goodTotems.get(i);
+            TextureRegion textureRegion = eggRegion[0]; // Aquí debes reemplazar "myTextureRegion" con la región de textura que deseas utilizar para este texto en particular
             float x = position.x;
             float y = position.y;
             float scrollAmount = scrollSpeed * scrollTimer;
@@ -249,7 +251,8 @@ public class GameScreen extends ScreenAdapter {
                 font.draw(batch, visibleText, x, y);
             }
 
-            // TODO Hacer que el texto se mueva como antes
+            // Aquí dibujamos la textura después de dibujar el texto
+            batch.draw(textureRegion, x + 80, y, textureRegion.getRegionWidth() + 40, textureRegion.getRegionHeight() + 40);
 
             timer += delta;
             if (timer >= delay) {
@@ -277,6 +280,8 @@ public class GameScreen extends ScreenAdapter {
             }
             font.draw(batch, visibleText, x, y);
         }
+
+
 
         for (int i = 0; i < badTotemPositions.size(); i++) {
             Vector2 position = badTotemPositions.get(i);
