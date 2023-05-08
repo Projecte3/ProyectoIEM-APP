@@ -15,7 +15,6 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.iem.utils.APIPost;
 import com.iem.utils.Utils;
@@ -52,7 +51,7 @@ public class GameScreen extends ScreenAdapter {
     TextureRegion walkFrameUP[] = new TextureRegion[5];
     TextureRegion walkFrameDown[] = new TextureRegion[5];
 
-    TextureRegion eggRegion[] = new TextureRegion[1];
+    TextureRegion eggRegion[] = new TextureRegion[4];
 
     Animation<TextureRegion> IDLEMarioDown, IDLEMarioUP,IDLEMarioX, walkMario, walkMarioUP, walkMarioDown, eggAnimation;
 
@@ -158,7 +157,11 @@ public class GameScreen extends ScreenAdapter {
 
         //EGG
         eggRegion[0] = new TextureRegion(egg,4,4,20,20);
-        eggAnimation = new Animation<>(0.25f, eggRegion);
+        eggRegion[1] = new TextureRegion(egg,23,4,20,20);
+        eggRegion[2] = new TextureRegion(egg,42,4,20,20);
+        eggRegion[3] = new TextureRegion(egg,61,4,20,20);
+
+        eggAnimation = new Animation<>(0.55f, eggRegion);
 
         batch = new SpriteBatch();
         stateTime = 0f;
@@ -230,6 +233,7 @@ public class GameScreen extends ScreenAdapter {
         TextureRegion walkFrameX = walkMario.getKeyFrame(stateTime, true);
         TextureRegion walkUP = walkMarioUP.getKeyFrame(stateTime, true);
         TextureRegion walkDown = walkMarioDown.getKeyFrame(stateTime, true);
+        TextureRegion eggChange = eggAnimation.getKeyFrame(stateTime, true);
 
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         stateTime += Gdx.graphics.getDeltaTime();
@@ -240,7 +244,7 @@ public class GameScreen extends ScreenAdapter {
         for (int i = 0; i < goodTotemPositions.size(); i++) {
             Vector2 position = goodTotemPositions.get(i);
             String totem = goodTotems.get(i);
-            TextureRegion textureRegion = eggRegion[0]; // Aquí debes reemplazar "myTextureRegion" con la región de textura que deseas utilizar para este texto en particular
+            //TextureRegion selectEgg = eggRegion[random_egg()]; // Aquí debes reemplazar "myTextureRegion" con la región de textura que deseas utilizar para este texto en particular
             float x = position.x;
             float y = position.y;
             float scrollAmount = scrollSpeed * scrollTimer;
@@ -252,8 +256,9 @@ public class GameScreen extends ScreenAdapter {
             }
 
             // Aquí dibujamos la textura después de dibujar el texto
-            batch.draw(textureRegion, x + 80, y, textureRegion.getRegionWidth() + 40, textureRegion.getRegionHeight() + 40);
-
+            //batch.draw(selectEgg, x + 80, y, selectEgg.getRegionWidth() + 40, selectEgg.getRegionHeight() + 40);
+            batch.draw(eggChange, x + 120, y, eggChange.getRegionWidth(), eggChange.getRegionHeight()-10,
+                    eggChange.getRegionWidth(), eggChange.getRegionHeight(), spriteSizeX, spriteSizeY, 0);
             timer += delta;
             if (timer >= delay) {
                 currentPosition++;
@@ -289,6 +294,7 @@ public class GameScreen extends ScreenAdapter {
             float x = position.x;
             float y = position.y;
             float scrollAmount = scrollSpeed * scrollTimer;
+            //TextureRegion selectEgg = eggRegion[random_egg()];
             int visibleChars = Math.min(maxVisibleChars, totem.length() - currentPosition);
             System.out.println(currentPosition);
             String visibleText = "";
@@ -300,7 +306,9 @@ public class GameScreen extends ScreenAdapter {
                 }
                 font.draw(batch, visibleText, x, y);
             }
-
+            //batch.draw(selectEgg, x + 80, y, selectEgg.getRegionWidth() + 40, selectEgg.getRegionHeight() + 40);
+            batch.draw(eggChange, x + 120, y, eggChange.getRegionWidth(), eggChange.getRegionHeight()-10,
+                    eggChange.getRegionWidth(), eggChange.getRegionHeight(), spriteSizeX, spriteSizeY, 0);
             timer += delta;
             if (timer >= delay) {
                 currentPosition++;
@@ -322,6 +330,7 @@ public class GameScreen extends ScreenAdapter {
                 game.badItem.play(1.0f);
                 badTotems.remove(i);
                 badTotemPositions.remove(i);
+
 
                 itemsIncorrectes--;
                 totemsIncorrectesLabel.setText("Totems incorrectes: " + itemsIncorrectes);
