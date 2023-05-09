@@ -96,13 +96,13 @@ public class GameScreen extends ScreenAdapter {
                 fontSize = 60;
                 spriteSizeX = 5;
                 spriteSizeY = 5;
-                font = Utils.createFont(35);
+                font = Utils.createFontMarquee(35);
                 break;
             case Desktop:
                 fontSize = 20;
                 spriteSizeX = 2;
                 spriteSizeY = 2;
-                font = Utils.createFont(20);
+                font = Utils.createFontMarquee(20);
                 break;
         }
 
@@ -247,7 +247,6 @@ public class GameScreen extends ScreenAdapter {
         for (int i = 0; i < goodTotemPositions.size(); i++) {
             Vector2 position = goodTotemPositions.get(i);
             String totem = goodTotems.get(i);
-            //TextureRegion selectEgg = eggRegion[random_egg()]; // Aquí debes reemplazar "myTextureRegion" con la región de textura que deseas utilizar para este texto en particular
             float x = position.x;
             float y = position.y;
             float scrollAmount = scrollSpeed * scrollTimer;
@@ -259,14 +258,13 @@ public class GameScreen extends ScreenAdapter {
             }
 
             // Aquí dibujamos la textura después de dibujar el texto
-            //batch.draw(selectEgg, x + 80, y, selectEgg.getRegionWidth() + 40, selectEgg.getRegionHeight() + 40);
             batch.draw(eggChange, x + 120, y, eggChange.getRegionWidth(), eggChange.getRegionHeight()-10,
                     eggChange.getRegionWidth(), eggChange.getRegionHeight(), spriteSizeX, spriteSizeY, 0);
             timer += delta;
             if (timer >= delay) {
                 currentPosition++;
                 if (currentPosition >= totem.length()) {
-                    currentPosition = visibleChars - 1; // Reset to last visible character position
+                    currentPosition = visibleChars - 1;
                 }
                 timer = 0;
             }
@@ -295,9 +293,7 @@ public class GameScreen extends ScreenAdapter {
             float x = position.x;
             float y = position.y;
             float scrollAmount = scrollSpeed * scrollTimer;
-            //TextureRegion selectEgg = eggRegion[random_egg()];
             int visibleChars = Math.min(maxVisibleChars, totem.length() - currentPosition);
-            System.out.println(currentPosition);
             String visibleText = "";
             if (currentPosition >= 0 && currentPosition < totem.length()) {
                 try {
@@ -307,14 +303,13 @@ public class GameScreen extends ScreenAdapter {
                 }
                 font.draw(batch, visibleText, x, y);
             }
-            //batch.draw(selectEgg, x + 80, y, selectEgg.getRegionWidth() + 40, selectEgg.getRegionHeight() + 40);
             batch.draw(eggChange, x + 120, y, eggChange.getRegionWidth(), eggChange.getRegionHeight()-10,
                     eggChange.getRegionWidth(), eggChange.getRegionHeight(), spriteSizeX, spriteSizeY, 0);
             timer += delta;
             if (timer >= delay) {
                 currentPosition++;
                 if (currentPosition >= totem.length()) {
-                    currentPosition = visibleChars - 1; // Reset to last visible character position
+                    currentPosition = visibleChars - 1;
                 }
                 timer = 0;
             }
@@ -429,6 +424,7 @@ public class GameScreen extends ScreenAdapter {
     public void movingTotem(float x, float y, ArrayList<Vector2> positions) {
         positions.add(new Vector2(x, y));
     }
+
     protected int virtual_joystick_control() {
         for(int i=0;i<10;i++)
             if (Gdx.input.isTouched(i)) {

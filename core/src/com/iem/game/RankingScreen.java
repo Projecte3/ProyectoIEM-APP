@@ -59,7 +59,6 @@ public class RankingScreen extends ScreenAdapter {
             StringBuffer sb = new APIPost().sendPost("https://proyecteiem-api-production.up.railway.app/get_ranking",test);
             JSONObject objResponse = new JSONObject(sb.toString());
             JSONArray players = objResponse.getJSONArray("result");
-            System.out.println(players);
             for (int i = 0; i < players.length(); i++) {
                 JSONObject player = players.getJSONObject(i);
                 if(player.getInt("ocult") == 0){

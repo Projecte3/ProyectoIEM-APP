@@ -62,6 +62,17 @@ public class Utils {
 
         return generator.generateFont(parameter);
     }
+    public static BitmapFont createFontMarquee(int size){
+        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/Renegade Pursuit.otf"));
+        FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+
+        parameter.size = size;
+        parameter.borderWidth = 2f;
+        parameter.color = Color.BLACK;
+        parameter.borderColor = Color.WHITE;
+
+        return generator.generateFont(parameter);
+    }
 
     public static Label createLabel(String str, float x, float y, int size){
         Skin skin = new Skin();

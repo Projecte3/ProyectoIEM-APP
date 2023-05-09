@@ -87,7 +87,6 @@ public class FamiliesScreen extends ScreenAdapter {
                 @Override
                 public void clicked(InputEvent event, float x, float y)
                 {
-                    System.out.println(button.getText());
                     game.setScreen(new CiclesScreen(game, button.getText().toString()));
                 }
             });
