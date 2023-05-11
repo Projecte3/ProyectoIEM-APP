@@ -85,6 +85,8 @@ public class GameScreen extends ScreenAdapter {
     Label totemsIncorrectesLabel;
     Label timerLabel;
 
+    int bgMovement = 5;
+
     int fontSize;
 
     public GameScreen(proyectoIEM game) {
@@ -190,8 +192,8 @@ public class GameScreen extends ScreenAdapter {
             float x, y;
             boolean tooClose;
             do {
-                x = MathUtils.random(0, screenWidth - font.getSpaceXadvance() * totem.length());
-                y = MathUtils.random(0, screenHeight - font.getLineHeight());
+                x = MathUtils.random(0, backgroundWidth - font.getSpaceXadvance() * totem.length());
+                y = MathUtils.random(0, backgroundHeight - font.getLineHeight());
 
                 tooClose = false;
                 for (Vector2 position : goodTotemPositions) {
@@ -208,8 +210,8 @@ public class GameScreen extends ScreenAdapter {
             float x, y;
             boolean tooClose;
             do {
-                x = MathUtils.random(0, screenWidth - font.getSpaceXadvance() * totem.length());
-                y = MathUtils.random(0, screenHeight - font.getLineHeight());
+                x = MathUtils.random(0, backgroundWidth - font.getSpaceXadvance() * totem.length());
+                y = MathUtils.random(0, backgroundHeight - font.getLineHeight());
 
                 tooClose = false;
                 for (Vector2 position : badTotemPositions) {
@@ -347,6 +349,7 @@ public class GameScreen extends ScreenAdapter {
 
             font.draw(batch, visibleText, x, y);
         }
+
         batch.end();
 
         int direction = virtual_joystick_control();
@@ -369,9 +372,24 @@ public class GameScreen extends ScreenAdapter {
             //GO UP ANIMATION
             case 1:
                 IDLEMarioDown = new Animation<>(0.25f, walkFrameUP);
-                bgPosY -= 5;
+                bgPosY -= bgMovement;
+
+                for (int i = 0; i < goodTotemPositions.size(); i++) {
+                    Vector2 position = goodTotemPositions.get(i);
+
+                    position.y = position.y - bgMovement;
+                    }
+
+                for (int i = 0; i < badTotemPositions.size(); i++) {
+                    Vector2 position = badTotemPositions.get(i);
+
+                    position.y = position.y - bgMovement;
+                }
+
                 batch.begin();
                 batch.draw(background, bgPosX, bgPosY, backgroundWidth,backgroundHeight);
+
+                reDrawGoodEggs(delta, eggChange);
                 playerRect.setSize(spriteSizeX, spriteSizeY);
                 batch.draw(walkUP, posx, posy, 0, 0,
                         walkUP.getRegionWidth(), walkUP.getRegionHeight(), spriteSizeX, spriteSizeY, 0);
@@ -381,9 +399,23 @@ public class GameScreen extends ScreenAdapter {
             //GO DOWN ANIMATION
             case 2:
                 IDLEMarioDown = new Animation<>(0.25f, walkFrameDown);
-                bgPosY += 5;
+                bgPosY += bgMovement;
+
+                for (int i = 0; i < goodTotemPositions.size(); i++) {
+                    Vector2 position = goodTotemPositions.get(i);
+
+                    position.y = position.y + bgMovement;
+                }
+
+                for (int i = 0; i < badTotemPositions.size(); i++) {
+                    Vector2 position = badTotemPositions.get(i);
+
+                    position.y = position.y + bgMovement;
+                }
+
                 batch.begin();
                 batch.draw(background, bgPosX, bgPosY, backgroundWidth,backgroundHeight);
+                reDrawGoodEggs(delta, eggChange);
                 playerRect.setSize(spriteSizeX, spriteSizeY);
                 batch.draw(walkDown, posx, posy, 0, 0,
                         walkDown.getRegionWidth(), walkDown.getRegionHeight(), spriteSizeX, spriteSizeY, 0);
@@ -394,9 +426,23 @@ public class GameScreen extends ScreenAdapter {
             //GO LEFT ANIMATION
             case 3:
                 IDLEMarioDown = new Animation<>(0.25f, walkFrame);
-                bgPosX += 5;
+                bgPosX += bgMovement;
+
+                for (int i = 0; i < goodTotemPositions.size(); i++) {
+                    Vector2 position = goodTotemPositions.get(i);
+
+                    position.x = position.x + bgMovement;
+                }
+
+                for (int i = 0; i < badTotemPositions.size(); i++) {
+                    Vector2 position = badTotemPositions.get(i);
+
+                    position.x = position.x + bgMovement;
+                }
+
                 batch.begin();
                 batch.draw(background, bgPosX, bgPosY, backgroundWidth,backgroundHeight);
+                reDrawGoodEggs(delta, eggChange);
                 playerRect.setSize(spriteSizeX, spriteSizeY);
                 batch.draw(walkFrameX, posx, posy, 0 + walkFrameX.getRegionWidth(), 0,
                         walkFrameX.getRegionWidth(), walkFrameX.getRegionHeight(), -spriteSizeX, spriteSizeY, 0);
@@ -408,9 +454,22 @@ public class GameScreen extends ScreenAdapter {
             //GO RIGHT ANIMATION
             case 4:
                 IDLEMarioDown = new Animation<>(0.25f, walkFrame);
-                bgPosX -= 5;
+                bgPosX -= bgMovement;
+                for (int i = 0; i < goodTotemPositions.size() ; i++) {
+                    Vector2 position = goodTotemPositions.get(i);
+
+                    position.x = position.x - bgMovement;
+                }
+
+                for (int i = 0; i < badTotemPositions.size(); i++) {
+                    Vector2 position = badTotemPositions.get(i);
+
+                    position.x = position.x - bgMovement;
+                }
+
                 batch.begin();
                 batch.draw(background, bgPosX, bgPosY, backgroundWidth,backgroundHeight);
+                reDrawGoodEggs(delta, eggChange);
                 playerRect.setSize(spriteSizeX, spriteSizeY);
                 batch.draw(walkFrameX, posx, posy, 0, 0,
                         walkFrameX.getRegionWidth(), walkFrameX.getRegionHeight(), spriteSizeX, spriteSizeY, 0);
@@ -489,6 +548,78 @@ public class GameScreen extends ScreenAdapter {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public void reDrawGoodEggs(float delta, TextureRegion eggChange){
+        for (int i = 0; i < goodTotemPositions.size(); i++) {
+            Vector2 position = goodTotemPositions.get(i);
+            String totem = goodTotems.get(i);
+            float x = position.x;
+            float y = position.y;
+
+
+            float scrollAmount = scrollSpeed * scrollTimer;
+            int visibleChars = Math.min(maxVisibleChars, totem.length() - currentPosition);
+            String visibleText = "";
+            if (currentPosition >= 0 && currentPosition < totem.length()) {
+                visibleText = totem.substring(currentPosition, Math.min(currentPosition + visibleChars, totem.length()));
+                font.draw(batch, visibleText, x, y);
+            }
+
+            // Aquí dibujamos la textura después de dibujar el texto
+            batch.draw(eggChange, x + 120, y, eggChange.getRegionWidth(), (eggChange.getRegionHeight()-10),
+                    eggChange.getRegionWidth(), eggChange.getRegionHeight(), spriteSizeX, spriteSizeY, 0);
+            timer += delta;
+            if (timer >= delay) {
+                currentPosition++;
+                if (currentPosition >= totem.length()) {
+                    currentPosition = visibleChars - 1;
+                }
+                timer = 0;
+            }
+            scrollTimer += delta;
+            if (scrollAmount >= font.getSpaceXadvance() * visibleChars) {
+                scrollTimer = 0;
+            }
+            float speed = 0.5f;
+            scrollPosition += speed * delta;
+
+        }
+        for (int i = 0; i < badTotemPositions.size(); i++) {
+            Vector2 position = badTotemPositions.get(i);
+            String totem = goodTotems.get(i);
+            float x = position.x;
+            float y = position.y;
+
+
+            float scrollAmount = scrollSpeed * scrollTimer;
+            int visibleChars = Math.min(maxVisibleChars, totem.length() - currentPosition);
+            String visibleText = "";
+            if (currentPosition >= 0 && currentPosition < totem.length()) {
+                visibleText = totem.substring(currentPosition, Math.min(currentPosition + visibleChars, totem.length()));
+                font.draw(batch, visibleText, x, y);
+            }
+
+            // Aquí dibujamos la textura después de dibujar el texto
+            batch.draw(eggChange, x + 120, y, eggChange.getRegionWidth(), (eggChange.getRegionHeight()-10),
+                    eggChange.getRegionWidth(), eggChange.getRegionHeight(), spriteSizeX, spriteSizeY, 0);
+            timer += delta;
+            if (timer >= delay) {
+                currentPosition++;
+                if (currentPosition >= totem.length()) {
+                    currentPosition = visibleChars - 1;
+                }
+                timer = 0;
+            }
+            scrollTimer += delta;
+            if (scrollAmount >= font.getSpaceXadvance() * visibleChars) {
+                scrollTimer = 0;
+            }
+            float speed = 0.5f;
+            scrollPosition += speed * delta;
+
+        }
+
     }
 
 }
