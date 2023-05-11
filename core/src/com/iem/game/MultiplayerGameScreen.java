@@ -25,7 +25,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.ArrayList;
 
-public class GameScreen extends ScreenAdapter {
+public class MultiplayerGameScreen extends ScreenAdapter {
     float screenWidth = Gdx.graphics.getWidth();
     float screenHeight = Gdx.graphics.getHeight();
     ArrayList<String> goodTotems = new ArrayList<>();
@@ -40,13 +40,10 @@ public class GameScreen extends ScreenAdapter {
     proyectoIEM game;
     OrthographicCamera camera;
     FitViewport viewport;
-    int backgroundWidth = 3008;
-    int backgroundHeight = 2624;
 
     //ANIMATION ATTRIBUTES
     Texture walkSheet, background, egg;
-    float bgPosX;
-    float bgPosY;
+    float bgPosX = 0;
 
     TextureRegion IDLEFrameDown[] = new TextureRegion[1];
     TextureRegion IDLEFrameUp[] = new TextureRegion[1];
@@ -66,7 +63,6 @@ public class GameScreen extends ScreenAdapter {
     float posx, posy;
 
     Rectangle playerRect;
-    float playerSpeed;
 
     Rectangle up, down, left, right;
     final int IDLE=0, UP=1, DOWN=2, LEFT=3, RIGHT=4;
@@ -87,7 +83,7 @@ public class GameScreen extends ScreenAdapter {
 
     int fontSize;
 
-    public GameScreen(proyectoIEM game) {
+    public MultiplayerGameScreen(proyectoIEM game) {
         this.game = game;
 
         camera = new OrthographicCamera();
@@ -97,13 +93,11 @@ public class GameScreen extends ScreenAdapter {
     @Override
     public void show() {
         stage = new Stage();
-
         switch (Gdx.app.getType()){
             case Android:
                 fontSize = 60;
                 spriteSizeX = 5;
                 spriteSizeY = 5;
-                playerSpeed = 2;
                 font = Utils.createFontMarquee(35);
                 break;
             case Desktop:
@@ -117,10 +111,8 @@ public class GameScreen extends ScreenAdapter {
         walkSheet = new Texture(Gdx.files.internal("mario.png"));
         background = new Texture(Gdx.files.internal("village.png"));
         egg = new Texture(Gdx.files.internal("eggs.png"));
-        posx = Gdx.graphics.getWidth() / 2;
-        posy = Gdx.graphics.getHeight() / 2;
-        bgPosX = 0;
-        bgPosY = 0;
+        posx = 750;
+        posy = 450;
         playerRect = new Rectangle();
 
         //IDLE FRAME DOWN
@@ -189,6 +181,7 @@ public class GameScreen extends ScreenAdapter {
         for (String totem : goodTotems) {
             float x, y;
             boolean tooClose;
+
             do {
                 x = MathUtils.random(0, screenWidth - font.getSpaceXadvance() * totem.length());
                 y = MathUtils.random(0, screenHeight - font.getLineHeight());
@@ -201,12 +194,14 @@ public class GameScreen extends ScreenAdapter {
                     }
                 }
             } while (tooClose);
+
             movingTotem(x, y, goodTotemPositions);
         }
 
         for (String totem : badTotems) {
             float x, y;
             boolean tooClose;
+
             do {
                 x = MathUtils.random(0, screenWidth - font.getSpaceXadvance() * totem.length());
                 y = MathUtils.random(0, screenHeight - font.getLineHeight());
@@ -219,6 +214,7 @@ public class GameScreen extends ScreenAdapter {
                     }
                 }
             } while (tooClose);
+
             movingTotem(x, y, badTotemPositions);
         }
 
@@ -243,20 +239,13 @@ public class GameScreen extends ScreenAdapter {
         TextureRegion eggChange = eggAnimation.getKeyFrame(stateTime, true);
 
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-
-        // TIMER
         int minutes = (int)(stateTime / 60);
         int seconds = Math.floorMod((int)stateTime, 60);
         timerLabel.setText(String.format("%d:%02d", minutes, seconds));
         stateTime += Gdx.graphics.getDeltaTime();
 
-        camera.setToOrtho(false, screenWidth, screenHeight);
-        camera.position.set(posx, posy, 0);
-        camera.zoom = 5f;
-        camera.update();
-
         batch.begin();
-        batch.draw(background, bgPosX , bgPosY, backgroundWidth, backgroundHeight);
+        batch.draw(background, 0 , 0, 3008, 2624);
         for (int i = 0; i < goodTotemPositions.size(); i++) {
             Vector2 position = goodTotemPositions.get(i);
             String totem = goodTotems.get(i);
@@ -369,9 +358,7 @@ public class GameScreen extends ScreenAdapter {
             //GO UP ANIMATION
             case 1:
                 IDLEMarioDown = new Animation<>(0.25f, walkFrameUP);
-                bgPosY -= 5;
                 batch.begin();
-                batch.draw(background, bgPosX, bgPosY, backgroundWidth,backgroundHeight);
                 playerRect.setSize(spriteSizeX, spriteSizeY);
                 batch.draw(walkUP, posx, posy, 0, 0,
                         walkUP.getRegionWidth(), walkUP.getRegionHeight(), spriteSizeX, spriteSizeY, 0);
@@ -381,9 +368,7 @@ public class GameScreen extends ScreenAdapter {
             //GO DOWN ANIMATION
             case 2:
                 IDLEMarioDown = new Animation<>(0.25f, walkFrameDown);
-                bgPosY += 5;
                 batch.begin();
-                batch.draw(background, bgPosX, bgPosY, backgroundWidth,backgroundHeight);
                 playerRect.setSize(spriteSizeX, spriteSizeY);
                 batch.draw(walkDown, posx, posy, 0, 0,
                         walkDown.getRegionWidth(), walkDown.getRegionHeight(), spriteSizeX, spriteSizeY, 0);
@@ -394,9 +379,9 @@ public class GameScreen extends ScreenAdapter {
             //GO LEFT ANIMATION
             case 3:
                 IDLEMarioDown = new Animation<>(0.25f, walkFrame);
-                bgPosX += 5;
+                bgPosX += 20;
                 batch.begin();
-                batch.draw(background, bgPosX, bgPosY, backgroundWidth,backgroundHeight);
+                batch.draw(background, bgPosX, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
                 playerRect.setSize(spriteSizeX, spriteSizeY);
                 batch.draw(walkFrameX, posx, posy, 0 + walkFrameX.getRegionWidth(), 0,
                         walkFrameX.getRegionWidth(), walkFrameX.getRegionHeight(), -spriteSizeX, spriteSizeY, 0);
@@ -408,9 +393,9 @@ public class GameScreen extends ScreenAdapter {
             //GO RIGHT ANIMATION
             case 4:
                 IDLEMarioDown = new Animation<>(0.25f, walkFrame);
-                bgPosX -= 5;
+                bgPosX -= 20;
                 batch.begin();
-                batch.draw(background, bgPosX, bgPosY, backgroundWidth,backgroundHeight);
+                batch.draw(background, bgPosX, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
                 playerRect.setSize(spriteSizeX, spriteSizeY);
                 batch.draw(walkFrameX, posx, posy, 0, 0,
                         walkFrameX.getRegionWidth(), walkFrameX.getRegionHeight(), spriteSizeX, spriteSizeY, 0);
@@ -419,6 +404,8 @@ public class GameScreen extends ScreenAdapter {
 
                 break;
         }
+
+
 
         if(itemsCorrectes == 0){
             game.setScreen(new EndScreen(game, stateTime, 5 - itemsCorrectes, 5 - itemsIncorrectes));
@@ -433,6 +420,7 @@ public class GameScreen extends ScreenAdapter {
         Gdx.input.setInputProcessor(null);
     }
 
+    // Función para colocar los totems y añadirlas a un arraylist con sus posiciones distintas
     public void movingTotem(float x, float y, ArrayList<Vector2> positions) {
         positions.add(new Vector2(x, y));
     }
@@ -442,7 +430,7 @@ public class GameScreen extends ScreenAdapter {
             if (Gdx.input.isTouched(i)) {
                 Vector3 touchPos = new Vector3();
                 touchPos.set(Gdx.input.getX(i), Gdx.input.getY(i), 0);
-
+                //camera.unproject(touchPos);
                 if (up.contains(touchPos.x, touchPos.y)) {
                     return UP;
                 } else if (down.contains(touchPos.x, touchPos.y)) {
@@ -492,3 +480,4 @@ public class GameScreen extends ScreenAdapter {
     }
 
 }
+
