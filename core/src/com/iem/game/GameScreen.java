@@ -587,7 +587,7 @@ public class GameScreen extends ScreenAdapter {
         }
         for (int i = 0; i < badTotemPositions.size(); i++) {
             Vector2 position = badTotemPositions.get(i);
-            String totem = goodTotems.get(i);
+            String totem = badTotems.get(i);
             float x = position.x;
             float y = position.y;
 
