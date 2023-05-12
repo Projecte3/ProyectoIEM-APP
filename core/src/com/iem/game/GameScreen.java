@@ -254,7 +254,7 @@ public class GameScreen extends ScreenAdapter {
 
         camera.setToOrtho(false, screenWidth, screenHeight);
         camera.position.set(posx, posy, 0);
-        camera.zoom = 5f;
+        camera.zoom = 10f;
         camera.update();
 
         batch.begin();

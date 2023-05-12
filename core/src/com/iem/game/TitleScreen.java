@@ -92,6 +92,7 @@ public class TitleScreen extends ScreenAdapter {
             @Override
             public void clicked(InputEvent event, float x, float y)  {
                 game.sound.play(1.0f);
+                game.setScreen(new MultiplayerGameScreen(game));
             }
         });
         stage.addActor(multijugador);

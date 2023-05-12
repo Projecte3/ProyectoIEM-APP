@@ -1,5 +1,6 @@
 package com.iem.game;
 
+import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.GL20;
@@ -16,8 +17,11 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.github.czyzby.websocket.WebSocket;
+import com.github.czyzby.websocket.WebSockets;
 import com.iem.utils.APIPost;
 import com.iem.utils.Utils;
+import com.iem.utils.WSListener;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -26,6 +30,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 public class MultiplayerGameScreen extends ScreenAdapter {
+    WebSocket socket;
+    String address = "localhost";
+    int port = 3000;
+
     float screenWidth = Gdx.graphics.getWidth();
     float screenHeight = Gdx.graphics.getHeight();
     ArrayList<String> goodTotems = new ArrayList<>();
@@ -40,10 +48,13 @@ public class MultiplayerGameScreen extends ScreenAdapter {
     proyectoIEM game;
     OrthographicCamera camera;
     FitViewport viewport;
+    int backgroundWidth = 3008;
+    int backgroundHeight = 2624;
 
     //ANIMATION ATTRIBUTES
     Texture walkSheet, background, egg;
-    float bgPosX = 0;
+    float bgPosX;
+    float bgPosY;
 
     TextureRegion IDLEFrameDown[] = new TextureRegion[1];
     TextureRegion IDLEFrameUp[] = new TextureRegion[1];
@@ -63,6 +74,7 @@ public class MultiplayerGameScreen extends ScreenAdapter {
     float posx, posy;
 
     Rectangle playerRect;
+    float playerSpeed;
 
     Rectangle up, down, left, right;
     final int IDLE=0, UP=1, DOWN=2, LEFT=3, RIGHT=4;
@@ -81,6 +93,8 @@ public class MultiplayerGameScreen extends ScreenAdapter {
     Label totemsIncorrectesLabel;
     Label timerLabel;
 
+    int bgMovement = 5;
+
     int fontSize;
 
     public MultiplayerGameScreen(proyectoIEM game) {
@@ -88,16 +102,41 @@ public class MultiplayerGameScreen extends ScreenAdapter {
 
         camera = new OrthographicCamera();
         viewport = new FitViewport(2048, 1080, camera);
+
+        if(Gdx.app.getType() == Application.ApplicationType.Android)
+            address = "proyecteiem-api-production.up.railway.app";
+
+        // Initialize WebSockets
+        address = "proyecteiem-api-production.up.railway.app";
+        port = 6415;
+
+        socket = WebSockets.newSocket(WebSockets.toWebSocketUrl(address, port));
+        socket.setSendGracefully(false);
+        socket.addListener(new WSListener());
+        socket.connect();
+
+        // Sends user login into the WebSocket
+        JSONObject obj = new JSONObject();
+        JSONObject user = new JSONObject();
+        user.put("nom_jugador", game.alies);
+        user.put("cicle", game.cicle);
+
+        obj.put("type", "info_usuari");
+        obj.put("message", user.toString());
+
+        socket.send(obj);
     }
 
     @Override
     public void show() {
         stage = new Stage();
+
         switch (Gdx.app.getType()){
             case Android:
                 fontSize = 60;
                 spriteSizeX = 5;
                 spriteSizeY = 5;
+                playerSpeed = 2;
                 font = Utils.createFontMarquee(35);
                 break;
             case Desktop:
@@ -111,8 +150,10 @@ public class MultiplayerGameScreen extends ScreenAdapter {
         walkSheet = new Texture(Gdx.files.internal("mario.png"));
         background = new Texture(Gdx.files.internal("village.png"));
         egg = new Texture(Gdx.files.internal("eggs.png"));
-        posx = 750;
-        posy = 450;
+        posx = Gdx.graphics.getWidth() / 2;
+        posy = Gdx.graphics.getHeight() / 2;
+        bgPosX = 0;
+        bgPosY = 0;
         playerRect = new Rectangle();
 
         //IDLE FRAME DOWN
@@ -174,17 +215,16 @@ public class MultiplayerGameScreen extends ScreenAdapter {
         left = new Rectangle(0, 0, screenWidth/3, screenHeight);
         right = new Rectangle(screenWidth * 2/3, 0, screenWidth, screenHeight);
 
-        setTotems();
+        // setTotems();
 
         float minDistance = font.getSpaceXadvance() * 4;
 
         for (String totem : goodTotems) {
             float x, y;
             boolean tooClose;
-
             do {
-                x = MathUtils.random(0, screenWidth - font.getSpaceXadvance() * totem.length());
-                y = MathUtils.random(0, screenHeight - font.getLineHeight());
+                x = MathUtils.random(0, backgroundWidth - font.getSpaceXadvance() * totem.length());
+                y = MathUtils.random(0, backgroundHeight - font.getLineHeight());
 
                 tooClose = false;
                 for (Vector2 position : goodTotemPositions) {
@@ -194,17 +234,15 @@ public class MultiplayerGameScreen extends ScreenAdapter {
                     }
                 }
             } while (tooClose);
-
             movingTotem(x, y, goodTotemPositions);
         }
 
         for (String totem : badTotems) {
             float x, y;
             boolean tooClose;
-
             do {
-                x = MathUtils.random(0, screenWidth - font.getSpaceXadvance() * totem.length());
-                y = MathUtils.random(0, screenHeight - font.getLineHeight());
+                x = MathUtils.random(0, backgroundWidth - font.getSpaceXadvance() * totem.length());
+                y = MathUtils.random(0, backgroundHeight - font.getLineHeight());
 
                 tooClose = false;
                 for (Vector2 position : badTotemPositions) {
@@ -214,7 +252,6 @@ public class MultiplayerGameScreen extends ScreenAdapter {
                     }
                 }
             } while (tooClose);
-
             movingTotem(x, y, badTotemPositions);
         }
 
@@ -239,13 +276,20 @@ public class MultiplayerGameScreen extends ScreenAdapter {
         TextureRegion eggChange = eggAnimation.getKeyFrame(stateTime, true);
 
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
+        // TIMER
         int minutes = (int)(stateTime / 60);
         int seconds = Math.floorMod((int)stateTime, 60);
         timerLabel.setText(String.format("%d:%02d", minutes, seconds));
         stateTime += Gdx.graphics.getDeltaTime();
 
+        camera.setToOrtho(false, screenWidth, screenHeight);
+        camera.position.set(posx, posy, 0);
+        camera.zoom = 10f;
+        camera.update();
+
         batch.begin();
-        batch.draw(background, 0 , 0, 3008, 2624);
+        batch.draw(background, bgPosX , bgPosY, backgroundWidth, backgroundHeight);
         for (int i = 0; i < goodTotemPositions.size(); i++) {
             Vector2 position = goodTotemPositions.get(i);
             String totem = goodTotems.get(i);
@@ -336,6 +380,7 @@ public class MultiplayerGameScreen extends ScreenAdapter {
 
             font.draw(batch, visibleText, x, y);
         }
+
         batch.end();
 
         int direction = virtual_joystick_control();
@@ -358,7 +403,24 @@ public class MultiplayerGameScreen extends ScreenAdapter {
             //GO UP ANIMATION
             case 1:
                 IDLEMarioDown = new Animation<>(0.25f, walkFrameUP);
+                bgPosY -= bgMovement;
+
+                for (int i = 0; i < goodTotemPositions.size(); i++) {
+                    Vector2 position = goodTotemPositions.get(i);
+
+                    position.y = position.y - bgMovement;
+                }
+
+                for (int i = 0; i < badTotemPositions.size(); i++) {
+                    Vector2 position = badTotemPositions.get(i);
+
+                    position.y = position.y - bgMovement;
+                }
+
                 batch.begin();
+                batch.draw(background, bgPosX, bgPosY, backgroundWidth,backgroundHeight);
+
+                reDrawGoodEggs(delta, eggChange);
                 playerRect.setSize(spriteSizeX, spriteSizeY);
                 batch.draw(walkUP, posx, posy, 0, 0,
                         walkUP.getRegionWidth(), walkUP.getRegionHeight(), spriteSizeX, spriteSizeY, 0);
@@ -368,7 +430,23 @@ public class MultiplayerGameScreen extends ScreenAdapter {
             //GO DOWN ANIMATION
             case 2:
                 IDLEMarioDown = new Animation<>(0.25f, walkFrameDown);
+                bgPosY += bgMovement;
+
+                for (int i = 0; i < goodTotemPositions.size(); i++) {
+                    Vector2 position = goodTotemPositions.get(i);
+
+                    position.y = position.y + bgMovement;
+                }
+
+                for (int i = 0; i < badTotemPositions.size(); i++) {
+                    Vector2 position = badTotemPositions.get(i);
+
+                    position.y = position.y + bgMovement;
+                }
+
                 batch.begin();
+                batch.draw(background, bgPosX, bgPosY, backgroundWidth,backgroundHeight);
+                reDrawGoodEggs(delta, eggChange);
                 playerRect.setSize(spriteSizeX, spriteSizeY);
                 batch.draw(walkDown, posx, posy, 0, 0,
                         walkDown.getRegionWidth(), walkDown.getRegionHeight(), spriteSizeX, spriteSizeY, 0);
@@ -379,9 +457,23 @@ public class MultiplayerGameScreen extends ScreenAdapter {
             //GO LEFT ANIMATION
             case 3:
                 IDLEMarioDown = new Animation<>(0.25f, walkFrame);
-                bgPosX += 20;
+                bgPosX += bgMovement;
+
+                for (int i = 0; i < goodTotemPositions.size(); i++) {
+                    Vector2 position = goodTotemPositions.get(i);
+
+                    position.x = position.x + bgMovement;
+                }
+
+                for (int i = 0; i < badTotemPositions.size(); i++) {
+                    Vector2 position = badTotemPositions.get(i);
+
+                    position.x = position.x + bgMovement;
+                }
+
                 batch.begin();
-                batch.draw(background, bgPosX, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+                batch.draw(background, bgPosX, bgPosY, backgroundWidth,backgroundHeight);
+                reDrawGoodEggs(delta, eggChange);
                 playerRect.setSize(spriteSizeX, spriteSizeY);
                 batch.draw(walkFrameX, posx, posy, 0 + walkFrameX.getRegionWidth(), 0,
                         walkFrameX.getRegionWidth(), walkFrameX.getRegionHeight(), -spriteSizeX, spriteSizeY, 0);
@@ -393,9 +485,22 @@ public class MultiplayerGameScreen extends ScreenAdapter {
             //GO RIGHT ANIMATION
             case 4:
                 IDLEMarioDown = new Animation<>(0.25f, walkFrame);
-                bgPosX -= 20;
+                bgPosX -= bgMovement;
+                for (int i = 0; i < goodTotemPositions.size() ; i++) {
+                    Vector2 position = goodTotemPositions.get(i);
+
+                    position.x = position.x - bgMovement;
+                }
+
+                for (int i = 0; i < badTotemPositions.size(); i++) {
+                    Vector2 position = badTotemPositions.get(i);
+
+                    position.x = position.x - bgMovement;
+                }
+
                 batch.begin();
-                batch.draw(background, bgPosX, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+                batch.draw(background, bgPosX, bgPosY, backgroundWidth,backgroundHeight);
+                reDrawGoodEggs(delta, eggChange);
                 playerRect.setSize(spriteSizeX, spriteSizeY);
                 batch.draw(walkFrameX, posx, posy, 0, 0,
                         walkFrameX.getRegionWidth(), walkFrameX.getRegionHeight(), spriteSizeX, spriteSizeY, 0);
@@ -404,8 +509,6 @@ public class MultiplayerGameScreen extends ScreenAdapter {
 
                 break;
         }
-
-
 
         if(itemsCorrectes == 0){
             game.setScreen(new EndScreen(game, stateTime, 5 - itemsCorrectes, 5 - itemsIncorrectes));
@@ -420,7 +523,6 @@ public class MultiplayerGameScreen extends ScreenAdapter {
         Gdx.input.setInputProcessor(null);
     }
 
-    // Función para colocar los totems y añadirlas a un arraylist con sus posiciones distintas
     public void movingTotem(float x, float y, ArrayList<Vector2> positions) {
         positions.add(new Vector2(x, y));
     }
@@ -430,7 +532,7 @@ public class MultiplayerGameScreen extends ScreenAdapter {
             if (Gdx.input.isTouched(i)) {
                 Vector3 touchPos = new Vector3();
                 touchPos.set(Gdx.input.getX(i), Gdx.input.getY(i), 0);
-                //camera.unproject(touchPos);
+
                 if (up.contains(touchPos.x, touchPos.y)) {
                     return UP;
                 } else if (down.contains(touchPos.x, touchPos.y)) {
@@ -479,5 +581,76 @@ public class MultiplayerGameScreen extends ScreenAdapter {
         }
     }
 
-}
+    public void reDrawGoodEggs(float delta, TextureRegion eggChange){
+        for (int i = 0; i < goodTotemPositions.size(); i++) {
+            Vector2 position = goodTotemPositions.get(i);
+            String totem = goodTotems.get(i);
+            float x = position.x;
+            float y = position.y;
 
+
+            float scrollAmount = scrollSpeed * scrollTimer;
+            int visibleChars = Math.min(maxVisibleChars, totem.length() - currentPosition);
+            String visibleText = "";
+            if (currentPosition >= 0 && currentPosition < totem.length()) {
+                visibleText = totem.substring(currentPosition, Math.min(currentPosition + visibleChars, totem.length()));
+                font.draw(batch, visibleText, x, y);
+            }
+
+            // Aquí dibujamos la textura después de dibujar el texto
+            batch.draw(eggChange, x + 120, y, eggChange.getRegionWidth(), (eggChange.getRegionHeight()-10),
+                    eggChange.getRegionWidth(), eggChange.getRegionHeight(), spriteSizeX, spriteSizeY, 0);
+            timer += delta;
+            if (timer >= delay) {
+                currentPosition++;
+                if (currentPosition >= totem.length()) {
+                    currentPosition = visibleChars - 1;
+                }
+                timer = 0;
+            }
+            scrollTimer += delta;
+            if (scrollAmount >= font.getSpaceXadvance() * visibleChars) {
+                scrollTimer = 0;
+            }
+            float speed = 0.5f;
+            scrollPosition += speed * delta;
+
+        }
+        for (int i = 0; i < badTotemPositions.size(); i++) {
+            Vector2 position = badTotemPositions.get(i);
+            String totem = badTotems.get(i);
+            float x = position.x;
+            float y = position.y;
+
+
+            float scrollAmount = scrollSpeed * scrollTimer;
+            int visibleChars = Math.min(maxVisibleChars, totem.length() - currentPosition);
+            String visibleText = "";
+            if (currentPosition >= 0 && currentPosition < totem.length()) {
+                visibleText = totem.substring(currentPosition, Math.min(currentPosition + visibleChars, totem.length()));
+                font.draw(batch, visibleText, x, y);
+            }
+
+            // Aquí dibujamos la textura después de dibujar el texto
+            batch.draw(eggChange, x + 120, y, eggChange.getRegionWidth(), (eggChange.getRegionHeight()-10),
+                    eggChange.getRegionWidth(), eggChange.getRegionHeight(), spriteSizeX, spriteSizeY, 0);
+            timer += delta;
+            if (timer >= delay) {
+                currentPosition++;
+                if (currentPosition >= totem.length()) {
+                    currentPosition = visibleChars - 1;
+                }
+                timer = 0;
+            }
+            scrollTimer += delta;
+            if (scrollAmount >= font.getSpaceXadvance() * visibleChars) {
+                scrollTimer = 0;
+            }
+            float speed = 0.5f;
+            scrollPosition += speed * delta;
+
+        }
+
+    }
+
+}

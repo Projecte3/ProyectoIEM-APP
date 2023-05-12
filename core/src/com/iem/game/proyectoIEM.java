@@ -28,7 +28,7 @@ public class proyectoIEM extends Game {
 	static final float TEXTFIELD_WIDTH_PERCENT = 0.40f;
 
 
-	String alies = "";
+	String alies = "test";
 	String cicle = "";
 	Texture personatge;
 
