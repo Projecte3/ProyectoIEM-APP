@@ -108,9 +108,9 @@ public class MultiplayerGameScreen extends ScreenAdapter {
 
         // Initialize WebSockets
         address = "proyecteiem-api-production.up.railway.app";
-        port = 6415;
+        port = 443;
 
-        socket = WebSockets.newSocket(WebSockets.toWebSocketUrl(address, port));
+        socket = WebSockets.newSocket(WebSockets.toSecureWebSocketUrl(address, port));
         socket.setSendGracefully(false);
         socket.addListener(new WSListener());
         socket.connect();
