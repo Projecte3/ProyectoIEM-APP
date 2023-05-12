@@ -13,6 +13,7 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.github.czyzby.websocket.WebSocket;
 import com.iem.utils.APIPost;
 
 import org.json.JSONException;
@@ -23,6 +24,7 @@ import java.io.IOException;
 public class EndScreen extends ScreenAdapter {
 
     proyectoIEM game;
+    WebSocket socketEnd;
     Stage stage;
     Button guardar;
     String dispositiu;
@@ -39,6 +41,14 @@ public class EndScreen extends ScreenAdapter {
         this.time = time;
         this.totalItemsC = itemsC;
         this.totalItemsInc = itemsInc;
+    }
+
+    public EndScreen(proyectoIEM game, float time, int itemsC, int itemsInc, WebSocket socket) {
+        this.game = game;
+        this.time = time;
+        this.totalItemsC = itemsC;
+        this.totalItemsInc = itemsInc;
+        this.socketEnd = socket;
     }
 
     @Override
@@ -67,6 +77,7 @@ public class EndScreen extends ScreenAdapter {
             public void clicked(InputEvent event, float x, float y)  {
                 game.sound.play(1.0f);
                 game.setScreen(new TitleScreen(game));
+                desconnectar(socketEnd);
             }
         }));
         guardar = createButton("Guardar record", Gdx.graphics.getWidth() * .50f, Gdx.graphics.getHeight() * .15f, buttonWidth, buttonHeight, fontSize,new ClickListener(){
@@ -100,6 +111,24 @@ public class EndScreen extends ScreenAdapter {
 
         stage.draw();
         stage.act();
+    }
+    public void desconnectar(WebSocket socket) {
+        // Sends user login into the WebSocket
+        JSONObject obj = new JSONObject();
+        JSONObject user = new JSONObject();
+        user.put("nom_jugador", game.alies);
+        user.put("cicle", game.cicle);
+
+        obj.put("type", "desconnectar");
+        obj.put("message", user);
+
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        socket.send(obj.toString());
     }
 
     @Override

@@ -51,6 +51,11 @@ public class MultiplayerGameScreen extends ScreenAdapter {
     int backgroundWidth = 3008;
     int backgroundHeight = 2624;
 
+    float leftBound = -backgroundWidth/2;
+    float rightBound = backgroundWidth/2;
+    float bottomBound = -backgroundHeight/2;
+    float topBound = backgroundHeight/2;
+
     //ANIMATION ATTRIBUTES
     Texture walkSheet, background, egg;
     float bgPosX;
@@ -120,13 +125,14 @@ public class MultiplayerGameScreen extends ScreenAdapter {
         socket.addListener(new WSListener());
         socket.connect();
 
+        connectar(socket);
+    }
+    public void connectar(WebSocket socket) {
         // Sends user login into the WebSocket
         JSONObject obj = new JSONObject();
         JSONObject user = new JSONObject();
         user.put("nom_jugador", game.alies);
         user.put("cicle", game.cicle);
-
-        System.out.println(game.cicle);
 
         obj.put("type", "info_usuari");
         obj.put("message", user);
@@ -298,7 +304,7 @@ public class MultiplayerGameScreen extends ScreenAdapter {
 
         camera.setToOrtho(false, screenWidth, screenHeight);
         camera.position.set(posx, posy, 0);
-        camera.zoom = 10f;
+
         camera.update();
 
         batch.begin();
@@ -430,6 +436,18 @@ public class MultiplayerGameScreen extends ScreenAdapter {
                     position.y = position.y - bgMovement;
                 }
 
+                if (camera.position.x < screenWidth / 2) {
+                    camera.position.x = screenWidth / 2;
+                } else if (camera.position.x > backgroundWidth - screenWidth / 2) {
+                    camera.position.x = backgroundWidth - screenWidth / 2;
+                }
+
+                if (camera.position.y < screenHeight / 2) {
+                    camera.position.y = screenHeight / 2;
+                } else if (camera.position.y > backgroundHeight - screenHeight / 2) {
+                    camera.position.y = backgroundHeight - screenHeight / 2;
+                }
+
                 batch.begin();
                 batch.draw(background, bgPosX, bgPosY, backgroundWidth,backgroundHeight);
 
@@ -524,7 +542,7 @@ public class MultiplayerGameScreen extends ScreenAdapter {
         }
 
         if(itemsCorrectes == 0){
-            game.setScreen(new EndScreen(game, stateTime, 5 - itemsCorrectes, 5 - itemsIncorrectes));
+            game.setScreen(new EndScreen(game, stateTime, 5 - itemsCorrectes, 5 - itemsIncorrectes, socket));
         }
 
         stage.draw();
