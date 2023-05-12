@@ -107,10 +107,15 @@ public class MultiplayerGameScreen extends ScreenAdapter {
             address = "proyecteiem-api-production.up.railway.app";
 
         // Initialize WebSockets
+        // address = "localhost";
+        // port = 3000;
+
         address = "proyecteiem-api-production.up.railway.app";
         port = 443;
 
+        // socket = WebSockets.newSocket(WebSockets.toWebSocketUrl(address, port));
         socket = WebSockets.newSocket(WebSockets.toSecureWebSocketUrl(address, port));
+
         socket.setSendGracefully(false);
         socket.addListener(new WSListener());
         socket.connect();
@@ -121,10 +126,18 @@ public class MultiplayerGameScreen extends ScreenAdapter {
         user.put("nom_jugador", game.alies);
         user.put("cicle", game.cicle);
 
-        obj.put("type", "info_usuari");
-        obj.put("message", user.toString());
+        System.out.println(game.cicle);
 
-        socket.send(obj);
+        obj.put("type", "info_usuari");
+        obj.put("message", user);
+
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        socket.send(obj.toString());
     }
 
     @Override
