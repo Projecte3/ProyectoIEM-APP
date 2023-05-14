@@ -25,9 +25,10 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 public class MultiplayerGameScreen extends ScreenAdapter {
-    WebSocket socket;
+    public static WebSocket socket;
     String address;
     int port;
 
@@ -42,7 +43,7 @@ public class MultiplayerGameScreen extends ScreenAdapter {
     int itemsIncorrectes;
     float timer;
 
-    proyectoIEM game;
+    static proyectoIEM game;
     OrthographicCamera camera;
     FitViewport viewport;
     int backgroundWidth = 3008;
@@ -50,8 +51,8 @@ public class MultiplayerGameScreen extends ScreenAdapter {
 
     //ANIMATION ATTRIBUTES
     Texture walkSheet, background, egg;
-    float bgPosX;
-    float bgPosY;
+    public static float bgPosX;
+    public static float bgPosY;
 
     TextureRegion[] IDLEFrameDown = new TextureRegion[1];
     TextureRegion[] IDLEFrameUp = new TextureRegion[1];
@@ -68,7 +69,8 @@ public class MultiplayerGameScreen extends ScreenAdapter {
     float stateTime;
     int spriteSizeX, spriteSizeY;
     SpriteBatch batch;
-    float posx, posy;
+     float posx;
+     float posy;
 
     Rectangle playerRect;
     float playerSpeed;
@@ -94,6 +96,10 @@ public class MultiplayerGameScreen extends ScreenAdapter {
 
     int fontSize;
 
+    PositionThread positionThread = new PositionThread();
+
+    HashMap<String, int[]> playersPositions = new HashMap<String, int[]>();
+
     public MultiplayerGameScreen(proyectoIEM game) {
         this.game = game;
 
@@ -110,6 +116,9 @@ public class MultiplayerGameScreen extends ScreenAdapter {
         socket.connect();
 
         connectar(socket);
+
+
+        positionThread.start();
     }
 
     @Override
@@ -339,6 +348,8 @@ public class MultiplayerGameScreen extends ScreenAdapter {
 
         int direction = virtual_joystick_control();
 
+
+
         switch (direction) {
 
             //IDLE ANIMATION
@@ -349,12 +360,7 @@ public class MultiplayerGameScreen extends ScreenAdapter {
                 playerRect.setSize(spriteSizeX, spriteSizeY);
                 batch.draw(IDLEDown, posx, posy, 0, 0,
                         IDLEDown.getRegionWidth(), IDLEDown.getRegionHeight(), spriteSizeX, spriteSizeY, 0);
-                batch.draw(IDLEDown2, posx+100, posy+20, 0, 0,
-                        IDLEDown.getRegionWidth(), IDLEDown.getRegionHeight(), spriteSizeX, spriteSizeY, 0);
-                batch.draw(IDLEDown3, posx-100, posy+20, 0, 0,
-                        IDLEDown.getRegionWidth(), IDLEDown.getRegionHeight(), spriteSizeX, spriteSizeY, 0);
-                batch.draw(IDLEDown4, posx, posy+70, 0, 0,
-                        IDLEDown.getRegionWidth(), IDLEDown.getRegionHeight(), spriteSizeX, spriteSizeY, 0);
+
                 batch.end();
 
                 playerRect.setPosition(posx, posy);
@@ -377,6 +383,10 @@ public class MultiplayerGameScreen extends ScreenAdapter {
                     position.y = position.y - bgMovement;
                 }
 
+                for (String player: playersPositions.keySet()){
+                    playersPositions.get(player)[1] = playersPositions.get(player)[1] - bgMovement;
+                }
+
                 if (camera.position.x < screenWidth / 2) {
                     camera.position.x = screenWidth / 2;
                 } else if (camera.position.x > backgroundWidth - screenWidth / 2) {
@@ -394,14 +404,9 @@ public class MultiplayerGameScreen extends ScreenAdapter {
 
                 reDrawGoodEggs(delta, eggChange);
                 playerRect.setSize(spriteSizeX, spriteSizeY);
+                playerRect.setPosition(posx, posy);
                 batch.draw(walkUP, posx, posy, 0, 0,
                         walkUP.getRegionWidth(), walkUP.getRegionHeight(), spriteSizeX, spriteSizeY, 0);
-                batch.draw(IDLEDown2, posx+100, posy+20, 0, 0,
-                        IDLEDown.getRegionWidth(), IDLEDown.getRegionHeight(), spriteSizeX, spriteSizeY, 0);
-                batch.draw(IDLEDown3, posx-100, posy+20, 0, 0,
-                        IDLEDown.getRegionWidth(), IDLEDown.getRegionHeight(), spriteSizeX, spriteSizeY, 0);
-                batch.draw(IDLEDown4, posx, posy+70, 0, 0,
-                        IDLEDown.getRegionWidth(), IDLEDown.getRegionHeight(), spriteSizeX, spriteSizeY, 0);
                 batch.end();
                 break;
 
@@ -422,18 +427,17 @@ public class MultiplayerGameScreen extends ScreenAdapter {
                     position.y = position.y + bgMovement;
                 }
 
+                for (String player: playersPositions.keySet()){
+                    playersPositions.get(player)[1] = playersPositions.get(player)[1] + bgMovement;
+                }
+
                 batch.begin();
                 batch.draw(background, bgPosX, bgPosY, backgroundWidth,backgroundHeight);
                 reDrawGoodEggs(delta, eggChange);
                 playerRect.setSize(spriteSizeX, spriteSizeY);
+                playerRect.setPosition(posx, posy);
                 batch.draw(walkDown, posx, posy, 0, 0,
                         walkDown.getRegionWidth(), walkDown.getRegionHeight(), spriteSizeX, spriteSizeY, 0);
-                batch.draw(IDLEDown2, posx+100, posy+20, 0, 0,
-                        IDLEDown.getRegionWidth(), IDLEDown.getRegionHeight(), spriteSizeX, spriteSizeY, 0);
-                batch.draw(IDLEDown3, posx-100, posy+20, 0, 0,
-                        IDLEDown.getRegionWidth(), IDLEDown.getRegionHeight(), spriteSizeX, spriteSizeY, 0);
-                batch.draw(IDLEDown4, posx, posy+70, 0, 0,
-                        IDLEDown.getRegionWidth(), IDLEDown.getRegionHeight(), spriteSizeX, spriteSizeY, 0);
                 batch.end();
 
                 break;
@@ -455,18 +459,16 @@ public class MultiplayerGameScreen extends ScreenAdapter {
                     position.x = position.x + bgMovement;
                 }
 
+                for (String player: playersPositions.keySet()){
+                    playersPositions.get(player)[0] = playersPositions.get(player)[0] + bgMovement;
+                }
+
                 batch.begin();
                 batch.draw(background, bgPosX, bgPosY, backgroundWidth,backgroundHeight);
                 reDrawGoodEggs(delta, eggChange);
                 playerRect.setSize(spriteSizeX, spriteSizeY);
                 batch.draw(walkFrameX, posx, posy, walkFrameX.getRegionWidth(), 0,
                         walkFrameX.getRegionWidth(), walkFrameX.getRegionHeight(), -spriteSizeX, spriteSizeY, 0);
-                batch.draw(IDLEDown2, posx+100, posy+20, 0, 0,
-                        IDLEDown.getRegionWidth(), IDLEDown.getRegionHeight(), spriteSizeX, spriteSizeY, 0);
-                batch.draw(IDLEDown3, posx-100, posy+20, 0, 0,
-                        IDLEDown.getRegionWidth(), IDLEDown.getRegionHeight(), spriteSizeX, spriteSizeY, 0);
-                batch.draw(IDLEDown4, posx, posy+70, 0, 0,
-                        IDLEDown.getRegionWidth(), IDLEDown.getRegionHeight(), spriteSizeX, spriteSizeY, 0);
                 playerRect.setPosition(posx, posy);
                 batch.end();
 
@@ -488,29 +490,71 @@ public class MultiplayerGameScreen extends ScreenAdapter {
                     position.x = position.x - bgMovement;
                 }
 
+                for (String player: playersPositions.keySet()){
+                    playersPositions.get(player)[0] = playersPositions.get(player)[0] - bgMovement;
+                }
+
                 batch.begin();
                 batch.draw(background, bgPosX, bgPosY, backgroundWidth,backgroundHeight);
                 reDrawGoodEggs(delta, eggChange);
                 playerRect.setSize(spriteSizeX, spriteSizeY);
                 batch.draw(walkFrameX, posx, posy, 0, 0,
                         walkFrameX.getRegionWidth(), walkFrameX.getRegionHeight(), spriteSizeX, spriteSizeY, 0);
-                batch.draw(IDLEDown2, posx+100, posy+20, 0, 0,
-                        IDLEDown.getRegionWidth(), IDLEDown.getRegionHeight(), spriteSizeX, spriteSizeY, 0);
-                batch.draw(IDLEDown3, posx-100, posy+20, 0, 0,
-                        IDLEDown.getRegionWidth(), IDLEDown.getRegionHeight(), spriteSizeX, spriteSizeY, 0);
-                batch.draw(IDLEDown4, posx, posy+70, 0, 0,
-                        IDLEDown.getRegionWidth(), IDLEDown.getRegionHeight(), spriteSizeX, spriteSizeY, 0);
                 playerRect.setPosition(posx, posy);
                 batch.end();
 
                 break;
         }
 
+        // RENDER DE LOS OTROS JUGADORES
+
+        String[] players = new String[playersPositions.size()];
+        playersPositions.keySet().toArray(players);
+
+        batch.begin();
+        switch (players.length){
+            case 1:
+                System.out.println("test1: x: "+(float) playersPositions.get(players[0])[0]+", y: "+(float) playersPositions.get(players[0])[1]);
+                batch.draw(IDLEDown2, (float) playersPositions.get(players[0])[0], (float) playersPositions.get(players[0])[1], 0, 0,
+                        IDLEDown.getRegionWidth(), IDLEDown.getRegionHeight(), spriteSizeX, spriteSizeY, 0);
+                break;
+            case 2:
+                System.out.println("test1: x: "+(float) playersPositions.get(players[0])[0]+", y: "+(float) playersPositions.get(players[0])[1]);
+                System.out.println("test2: x: "+(float) playersPositions.get(players[1])[0]+", y: "+(float) playersPositions.get(players[1])[1]);
+
+                batch.draw(IDLEDown2, (float) playersPositions.get(players[0])[0], (float) playersPositions.get(players[0])[1], 0, 0,
+                        IDLEDown.getRegionWidth(), IDLEDown.getRegionHeight(), spriteSizeX, spriteSizeY, 0);
+                batch.draw(IDLEDown3, (float) playersPositions.get(players[1])[0], (float) playersPositions.get(players[1])[1], 0, 0,
+                        IDLEDown.getRegionWidth(), IDLEDown.getRegionHeight(), spriteSizeX, spriteSizeY, 0);
+                break;
+            case 3:
+                System.out.println("test: x: "+(float) playersPositions.get(players[0])[0]+", y: "+(float) playersPositions.get(players[0])[1]);
+                System.out.println("test2: x: "+(float) playersPositions.get(players[1])[0]+", y: "+(float) playersPositions.get(players[1])[1]);
+                System.out.println("test3: x: "+(float) playersPositions.get(players[2])[0]+", y: "+(float) playersPositions.get(players[2])[1]);
+                batch.draw(IDLEDown2, (float) playersPositions.get(players[0])[0], (float) playersPositions.get(players[0])[1], 0, 0,
+                        IDLEDown.getRegionWidth(), IDLEDown.getRegionHeight(), spriteSizeX, spriteSizeY, 0);
+                batch.draw(IDLEDown3, (float) playersPositions.get(players[1])[0], (float) playersPositions.get(players[1])[1], 0, 0,
+                        IDLEDown.getRegionWidth(), IDLEDown.getRegionHeight(), spriteSizeX, spriteSizeY, 0);
+                batch.draw(IDLEDown4, (float) playersPositions.get(players[2])[0], (float) playersPositions.get(players[2])[1], 0, 0,
+                        IDLEDown.getRegionWidth(), IDLEDown.getRegionHeight(), spriteSizeX, spriteSizeY, 0);
+        }
+        batch.end();
+
+
+
+
+        /*
         try {
             Thread.sleep(200);
             sendPosition(posx, posy);
         } catch (InterruptedException e) {
             e.printStackTrace();
+        }
+         */
+
+        if(itemsCorrectes == 0){
+            desconnectar(socket);
+            game.setScreen(new EndScreen(game, stateTime, 5 - itemsCorrectes, 5 - itemsIncorrectes));
         }
 
         stage.draw();
@@ -584,23 +628,40 @@ public class MultiplayerGameScreen extends ScreenAdapter {
         @Override
         public boolean onMessage(WebSocket webSocket, String packet) {
             JSONObject obj = new JSONObject(packet);
-            if(obj.get("type").equals("llistaTotems")){
-                JSONObject totems = obj.getJSONObject("totemsServer");
-                Map<String, Map<String, int[]>> mapTotems = new HashMap<>();
 
-                for (String cicles : totems.keySet()) {
-                    JSONObject ocupacions = totems.getJSONObject(cicles);
-                    Map<String, int[]> subMap = new HashMap<>();
-                    for (String ocupacio : ocupacions.keySet()) {
-                        int[] arr = new int[2];
-                        arr[0] = ocupacions.getJSONArray(ocupacio).getInt(0);
-                        arr[1] = ocupacions.getJSONArray(ocupacio).getInt(1);
-                        subMap.put(ocupacio, arr);
+            switch (obj.getString("type")){
+                case "llistaTotems":
+                    JSONObject totems = obj.getJSONObject("totemsServer");
+                    Map<String, Map<String, int[]>> mapTotems = new HashMap<>();
+
+                    for (String cicles : totems.keySet()) {
+                        JSONObject ocupacions = totems.getJSONObject(cicles);
+                        Map<String, int[]> subMap = new HashMap<>();
+                        for (String ocupacio : ocupacions.keySet()) {
+                            int[] arr = new int[2];
+                            arr[0] = ocupacions.getJSONArray(ocupacio).getInt(0);
+                            arr[1] = ocupacions.getJSONArray(ocupacio).getInt(1);
+                            subMap.put(ocupacio, arr);
+                        }
+                        mapTotems.put(cicles, subMap);
                     }
-                    mapTotems.put(cicles, subMap);
-                }
 
-                setTotems(mapTotems);
+                    setTotems(mapTotems);
+                    break;
+
+                case "player_positions":
+                    JSONObject players = obj.getJSONObject("message");
+                    for (String player: players.keySet()) {
+                        if (!player.equals(game.alies)){
+
+                            int[] arr = new int[2];
+                            arr[0] = players.getJSONArray(player).getInt(0);
+                            arr[1] = players.getJSONArray(player).getInt(1);
+                            playersPositions.put(player,arr);
+                        }
+                    }
+
+                    break;
             }
 
             return false;
@@ -646,13 +707,19 @@ public class MultiplayerGameScreen extends ScreenAdapter {
         obj.put("type", "desconnectar");
         obj.put("message", user);
 
+        /*
         try {
             Thread.sleep(1000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
 
+         */
+
         socket.send(obj.toString());
+
+        PositionThread.flag = false;
+        positionThread.stop();
     }
     public void removeTotem(String totemName) {
         JSONObject obj = new JSONObject();
@@ -662,34 +729,35 @@ public class MultiplayerGameScreen extends ScreenAdapter {
         obj.put("type", "remove_totem");
         obj.put("message", totem);
 
+        /*
         try {
             Thread.sleep(1000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
 
+         */
+
         socket.send(obj.toString());
     }
-    public void sendPosition(float x, float y) {
-        if(itemsCorrectes == 0){
-            desconnectar(socket);
-            game.setScreen(new EndScreen(game, stateTime, 5 - itemsCorrectes, 5 - itemsIncorrectes));
-        }
+    public static void sendPosition() {
+
 
         JSONObject obj = new JSONObject();
         JSONObject user = new JSONObject();
         user.put("jugador", game.alies);
-        user.put("pos_x", x);
-        user.put("pos_y", y);
+        user.put("pos_x", bgPosX);
+        user.put("pos_y", bgPosY);
 
         obj.put("type", "pos_jugador");
         obj.put("message", user);
 
+        /*
         try {
-            Thread.sleep(1000);
+            Thread.sleep(500);
         } catch (InterruptedException e) {
             e.printStackTrace();
-        }
+        */
 
         socket.send(obj.toString());
     }
