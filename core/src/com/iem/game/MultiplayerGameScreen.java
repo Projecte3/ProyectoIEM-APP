@@ -63,7 +63,7 @@ public class MultiplayerGameScreen extends ScreenAdapter {
 
     TextureRegion[] eggRegion = new TextureRegion[4];
 
-    Animation<TextureRegion> IDLEMarioDown, IDLEMarioUP,IDLEMarioX, walkMario, walkMarioUP, walkMarioDown, eggAnimation;
+    Animation<TextureRegion> IDLEMarioDown,IDLEMarioDown2,IDLEMarioDown3,IDLEMarioDown4, IDLEMarioUP,IDLEMarioX, walkMario, walkMarioUP, walkMarioDown, eggAnimation;
 
     float stateTime;
     int spriteSizeX, spriteSizeY;
@@ -175,6 +175,9 @@ public class MultiplayerGameScreen extends ScreenAdapter {
 
         //IDLE ANIMATIONS
         IDLEMarioDown = new Animation<>(0.25f, IDLEFrameDown);
+        IDLEMarioDown2 = new Animation<>(0.25f, IDLEFrameDown);
+        IDLEMarioDown3 = new Animation<>(0.25f, IDLEFrameDown);
+        IDLEMarioDown4 = new Animation<>(0.25f, IDLEFrameDown);
         IDLEMarioUP = new Animation<>(0.25f, IDLEFrameUp);
         IDLEMarioX = new Animation<>(0.25f, IDLEFrameX);
 
@@ -215,6 +218,9 @@ public class MultiplayerGameScreen extends ScreenAdapter {
     @Override
     public void render(float delta) {
         TextureRegion IDLEDown = IDLEMarioDown.getKeyFrame(stateTime,true);
+        TextureRegion IDLEDown2 = IDLEMarioDown2.getKeyFrame(stateTime, true);
+        TextureRegion IDLEDown3 = IDLEMarioDown3.getKeyFrame(stateTime, true);
+        TextureRegion IDLEDown4 = IDLEMarioDown4.getKeyFrame(stateTime, true);
         TextureRegion walkFrameX = walkMario.getKeyFrame(stateTime, true);
         TextureRegion walkUP = walkMarioUP.getKeyFrame(stateTime, true);
         TextureRegion walkDown = walkMarioDown.getKeyFrame(stateTime, true);
@@ -235,6 +241,7 @@ public class MultiplayerGameScreen extends ScreenAdapter {
 
         batch.begin();
         batch.draw(background, bgPosX , bgPosY, backgroundWidth, backgroundHeight);
+
         for (int i = 0; i < goodTotemPositions.size(); i++) {
             Vector2 position = goodTotemPositions.get(i);
             String totem = goodTotems.get(i);
@@ -342,6 +349,12 @@ public class MultiplayerGameScreen extends ScreenAdapter {
                 playerRect.setSize(spriteSizeX, spriteSizeY);
                 batch.draw(IDLEDown, posx, posy, 0, 0,
                         IDLEDown.getRegionWidth(), IDLEDown.getRegionHeight(), spriteSizeX, spriteSizeY, 0);
+                batch.draw(IDLEDown2, posx+100, posy+20, 0, 0,
+                        IDLEDown.getRegionWidth(), IDLEDown.getRegionHeight(), spriteSizeX, spriteSizeY, 0);
+                batch.draw(IDLEDown3, posx-100, posy+20, 0, 0,
+                        IDLEDown.getRegionWidth(), IDLEDown.getRegionHeight(), spriteSizeX, spriteSizeY, 0);
+                batch.draw(IDLEDown4, posx, posy+70, 0, 0,
+                        IDLEDown.getRegionWidth(), IDLEDown.getRegionHeight(), spriteSizeX, spriteSizeY, 0);
                 batch.end();
 
                 playerRect.setPosition(posx, posy);
@@ -383,6 +396,12 @@ public class MultiplayerGameScreen extends ScreenAdapter {
                 playerRect.setSize(spriteSizeX, spriteSizeY);
                 batch.draw(walkUP, posx, posy, 0, 0,
                         walkUP.getRegionWidth(), walkUP.getRegionHeight(), spriteSizeX, spriteSizeY, 0);
+                batch.draw(IDLEDown2, posx+100, posy+20, 0, 0,
+                        IDLEDown.getRegionWidth(), IDLEDown.getRegionHeight(), spriteSizeX, spriteSizeY, 0);
+                batch.draw(IDLEDown3, posx-100, posy+20, 0, 0,
+                        IDLEDown.getRegionWidth(), IDLEDown.getRegionHeight(), spriteSizeX, spriteSizeY, 0);
+                batch.draw(IDLEDown4, posx, posy+70, 0, 0,
+                        IDLEDown.getRegionWidth(), IDLEDown.getRegionHeight(), spriteSizeX, spriteSizeY, 0);
                 batch.end();
                 break;
 
@@ -409,6 +428,12 @@ public class MultiplayerGameScreen extends ScreenAdapter {
                 playerRect.setSize(spriteSizeX, spriteSizeY);
                 batch.draw(walkDown, posx, posy, 0, 0,
                         walkDown.getRegionWidth(), walkDown.getRegionHeight(), spriteSizeX, spriteSizeY, 0);
+                batch.draw(IDLEDown2, posx+100, posy+20, 0, 0,
+                        IDLEDown.getRegionWidth(), IDLEDown.getRegionHeight(), spriteSizeX, spriteSizeY, 0);
+                batch.draw(IDLEDown3, posx-100, posy+20, 0, 0,
+                        IDLEDown.getRegionWidth(), IDLEDown.getRegionHeight(), spriteSizeX, spriteSizeY, 0);
+                batch.draw(IDLEDown4, posx, posy+70, 0, 0,
+                        IDLEDown.getRegionWidth(), IDLEDown.getRegionHeight(), spriteSizeX, spriteSizeY, 0);
                 batch.end();
 
                 break;
@@ -436,6 +461,12 @@ public class MultiplayerGameScreen extends ScreenAdapter {
                 playerRect.setSize(spriteSizeX, spriteSizeY);
                 batch.draw(walkFrameX, posx, posy, walkFrameX.getRegionWidth(), 0,
                         walkFrameX.getRegionWidth(), walkFrameX.getRegionHeight(), -spriteSizeX, spriteSizeY, 0);
+                batch.draw(IDLEDown2, posx+100, posy+20, 0, 0,
+                        IDLEDown.getRegionWidth(), IDLEDown.getRegionHeight(), spriteSizeX, spriteSizeY, 0);
+                batch.draw(IDLEDown3, posx-100, posy+20, 0, 0,
+                        IDLEDown.getRegionWidth(), IDLEDown.getRegionHeight(), spriteSizeX, spriteSizeY, 0);
+                batch.draw(IDLEDown4, posx, posy+70, 0, 0,
+                        IDLEDown.getRegionWidth(), IDLEDown.getRegionHeight(), spriteSizeX, spriteSizeY, 0);
                 playerRect.setPosition(posx, posy);
                 batch.end();
 
@@ -463,6 +494,12 @@ public class MultiplayerGameScreen extends ScreenAdapter {
                 playerRect.setSize(spriteSizeX, spriteSizeY);
                 batch.draw(walkFrameX, posx, posy, 0, 0,
                         walkFrameX.getRegionWidth(), walkFrameX.getRegionHeight(), spriteSizeX, spriteSizeY, 0);
+                batch.draw(IDLEDown2, posx+100, posy+20, 0, 0,
+                        IDLEDown.getRegionWidth(), IDLEDown.getRegionHeight(), spriteSizeX, spriteSizeY, 0);
+                batch.draw(IDLEDown3, posx-100, posy+20, 0, 0,
+                        IDLEDown.getRegionWidth(), IDLEDown.getRegionHeight(), spriteSizeX, spriteSizeY, 0);
+                batch.draw(IDLEDown4, posx, posy+70, 0, 0,
+                        IDLEDown.getRegionWidth(), IDLEDown.getRegionHeight(), spriteSizeX, spriteSizeY, 0);
                 playerRect.setPosition(posx, posy);
                 batch.end();
 
