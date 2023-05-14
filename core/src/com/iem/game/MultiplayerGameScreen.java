@@ -1,6 +1,5 @@
 package com.iem.game;
 
-import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.GL20;
@@ -10,7 +9,6 @@ import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
@@ -18,21 +16,20 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.github.czyzby.websocket.WebSocket;
+import com.github.czyzby.websocket.WebSocketListener;
 import com.github.czyzby.websocket.WebSockets;
-import com.iem.utils.APIPost;
 import com.iem.utils.Utils;
-import com.iem.utils.WSListener;
 
-import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class MultiplayerGameScreen extends ScreenAdapter {
     WebSocket socket;
-    String address = "localhost";
-    int port = 3000;
+    String address;
+    int port;
 
     float screenWidth = Gdx.graphics.getWidth();
     float screenHeight = Gdx.graphics.getHeight();
@@ -51,25 +48,20 @@ public class MultiplayerGameScreen extends ScreenAdapter {
     int backgroundWidth = 3008;
     int backgroundHeight = 2624;
 
-    float leftBound = -backgroundWidth/2;
-    float rightBound = backgroundWidth/2;
-    float bottomBound = -backgroundHeight/2;
-    float topBound = backgroundHeight/2;
-
     //ANIMATION ATTRIBUTES
     Texture walkSheet, background, egg;
     float bgPosX;
     float bgPosY;
 
-    TextureRegion IDLEFrameDown[] = new TextureRegion[1];
-    TextureRegion IDLEFrameUp[] = new TextureRegion[1];
-    TextureRegion IDLEFrameX[] = new TextureRegion[4];
+    TextureRegion[] IDLEFrameDown = new TextureRegion[1];
+    TextureRegion[] IDLEFrameUp = new TextureRegion[1];
+    TextureRegion[] IDLEFrameX = new TextureRegion[4];
 
-    TextureRegion walkFrame[] = new TextureRegion[4];
-    TextureRegion walkFrameUP[] = new TextureRegion[5];
-    TextureRegion walkFrameDown[] = new TextureRegion[5];
+    TextureRegion[] walkFrame = new TextureRegion[4];
+    TextureRegion[] walkFrameUP = new TextureRegion[5];
+    TextureRegion[] walkFrameDown = new TextureRegion[5];
 
-    TextureRegion eggRegion[] = new TextureRegion[4];
+    TextureRegion[] eggRegion = new TextureRegion[4];
 
     Animation<TextureRegion> IDLEMarioDown, IDLEMarioUP,IDLEMarioX, walkMario, walkMarioUP, walkMarioDown, eggAnimation;
 
@@ -108,17 +100,9 @@ public class MultiplayerGameScreen extends ScreenAdapter {
         camera = new OrthographicCamera();
         viewport = new FitViewport(2048, 1080, camera);
 
-        if(Gdx.app.getType() == Application.ApplicationType.Android)
-            address = "proyecteiem-api-production.up.railway.app";
-
-        // Initialize WebSockets
-        // address = "localhost";
-        // port = 3000;
-
         address = "proyecteiem-api-production.up.railway.app";
         port = 443;
 
-        // socket = WebSockets.newSocket(WebSockets.toWebSocketUrl(address, port));
         socket = WebSockets.newSocket(WebSockets.toSecureWebSocketUrl(address, port));
 
         socket.setSendGracefully(false);
@@ -126,24 +110,6 @@ public class MultiplayerGameScreen extends ScreenAdapter {
         socket.connect();
 
         connectar(socket);
-    }
-    public void connectar(WebSocket socket) {
-        // Sends user login into the WebSocket
-        JSONObject obj = new JSONObject();
-        JSONObject user = new JSONObject();
-        user.put("nom_jugador", game.alies);
-        user.put("cicle", game.cicle);
-
-        obj.put("type", "info_usuari");
-        obj.put("message", user);
-
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-        socket.send(obj.toString());
     }
 
     @Override
@@ -234,46 +200,6 @@ public class MultiplayerGameScreen extends ScreenAdapter {
         left = new Rectangle(0, 0, screenWidth/3, screenHeight);
         right = new Rectangle(screenWidth * 2/3, 0, screenWidth, screenHeight);
 
-        // setTotems();
-
-        float minDistance = font.getSpaceXadvance() * 4;
-
-        for (String totem : goodTotems) {
-            float x, y;
-            boolean tooClose;
-            do {
-                x = MathUtils.random(0, backgroundWidth - font.getSpaceXadvance() * totem.length());
-                y = MathUtils.random(0, backgroundHeight - font.getLineHeight());
-
-                tooClose = false;
-                for (Vector2 position : goodTotemPositions) {
-                    if (Vector2.dst(x, y, position.x, position.y) < minDistance) {
-                        tooClose = true;
-                        break;
-                    }
-                }
-            } while (tooClose);
-            movingTotem(x, y, goodTotemPositions);
-        }
-
-        for (String totem : badTotems) {
-            float x, y;
-            boolean tooClose;
-            do {
-                x = MathUtils.random(0, backgroundWidth - font.getSpaceXadvance() * totem.length());
-                y = MathUtils.random(0, backgroundHeight - font.getLineHeight());
-
-                tooClose = false;
-                for (Vector2 position : badTotemPositions) {
-                    if (Vector2.dst(x, y, position.x, position.y) < minDistance) {
-                        tooClose = true;
-                        break;
-                    }
-                }
-            } while (tooClose);
-            movingTotem(x, y, badTotemPositions);
-        }
-
         totemsCorrectesLabel = Utils.createLabel("Totems correctes: " + itemsCorrectes, Gdx.graphics.getWidth() * .01f, Gdx.graphics.getHeight() * .08f, fontSize);
         totemsIncorrectesLabel = Utils.createLabel("Totems incorrectes: " + itemsIncorrectes, Gdx.graphics.getWidth() * .01f, Gdx.graphics.getHeight() * .04f, fontSize);
         timerLabel = Utils.createLabel("00:00", Gdx.graphics.getWidth() * .475f, Gdx.graphics.getHeight() * .95f, fontSize + 40);
@@ -344,8 +270,10 @@ public class MultiplayerGameScreen extends ScreenAdapter {
             Rectangle bounds = new Rectangle(x, y, 200, 50);
             if (bounds.contains(playerRect)) {
                 game.goodItem.play(1.0f);
+                removeTotem(goodTotems.get(i));
                 goodTotems.remove(i);
                 goodTotemPositions.remove(i);
+
                 itemsCorrectes--;
                 totemsCorrectesLabel.setText("Totems correctes: " + itemsCorrectes);
             }
@@ -389,9 +317,9 @@ public class MultiplayerGameScreen extends ScreenAdapter {
             Rectangle bounds = new Rectangle(x, y, 200, 100);
             if (bounds.contains(playerRect)) {
                 game.badItem.play(1.0f);
+                removeTotem(badTotems.get(i));
                 badTotems.remove(i);
                 badTotemPositions.remove(i);
-
 
                 itemsIncorrectes--;
                 totemsIncorrectesLabel.setText("Totems incorrectes: " + itemsIncorrectes);
@@ -506,7 +434,7 @@ public class MultiplayerGameScreen extends ScreenAdapter {
                 batch.draw(background, bgPosX, bgPosY, backgroundWidth,backgroundHeight);
                 reDrawGoodEggs(delta, eggChange);
                 playerRect.setSize(spriteSizeX, spriteSizeY);
-                batch.draw(walkFrameX, posx, posy, 0 + walkFrameX.getRegionWidth(), 0,
+                batch.draw(walkFrameX, posx, posy, walkFrameX.getRegionWidth(), 0,
                         walkFrameX.getRegionWidth(), walkFrameX.getRegionHeight(), -spriteSizeX, spriteSizeY, 0);
                 playerRect.setPosition(posx, posy);
                 batch.end();
@@ -541,8 +469,11 @@ public class MultiplayerGameScreen extends ScreenAdapter {
                 break;
         }
 
-        if(itemsCorrectes == 0){
-            game.setScreen(new EndScreen(game, stateTime, 5 - itemsCorrectes, 5 - itemsIncorrectes, socket));
+        try {
+            Thread.sleep(200);
+            sendPosition(posx, posy);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
 
         stage.draw();
@@ -577,39 +508,153 @@ public class MultiplayerGameScreen extends ScreenAdapter {
         return IDLE;
     }
 
-
-    public void setTotems(){
-        JSONObject obj = new JSONObject();
-        obj.put("cicleNom",game.cicle);
-        try {
-            StringBuffer sb = new APIPost().sendPost("https://proyecteiem-api-production.up.railway.app/get_totems",obj);
-            JSONObject objResponse = new JSONObject(sb.toString());
-            JSONObject result = objResponse.getJSONObject("result");
-
-            JSONObject totemsGenerados = result.getJSONObject("totemsGenerados");
-
-            JSONObject buenos = totemsGenerados.getJSONObject("buenos");
-            JSONObject malos = totemsGenerados.getJSONObject("malos");
-
-            // Recorremos los totems buenos y los añadimos al array de totems
-            JSONArray totemsBuenos = buenos.getJSONArray("totems");
-            for (int i = 0; i < 5; i++) {
-                goodTotems.add(totemsBuenos.getJSONObject(i).getString("nom"));
+    public void setTotems(Map<String, Map<String, int[]>> map){
+        for (Map.Entry<String, Map<String, int[]>> entry : map.entrySet()) {
+            if(game.cicle.equals(entry.getKey())){
+                Map<String, int[]> subMap = entry.getValue();
+                for (Map.Entry<String, int[]> subEntry : subMap.entrySet()) {
+                    goodTotems.add(subEntry.getKey());
+                    movingTotem(subEntry.getValue()[0], subEntry.getValue()[1], goodTotemPositions);
+                }
+            } else {
+                Map<String, int[]> subMap = entry.getValue();
+                for (Map.Entry<String, int[]> subEntry : subMap.entrySet()) {
+                    badTotems.add(subEntry.getKey());
+                    movingTotem(subEntry.getValue()[0], subEntry.getValue()[1], badTotemPositions);
+                }
             }
-
-            // Recorremos los totems malos y los añadimos al array de totems
-            JSONArray totemsMalos = malos.getJSONArray("totems");
-            for (int i = 0; i < 5; i++) {
-                badTotems.add(totemsMalos.getJSONObject(i).getString("nom"));
-            }
-
-            // Añadimos la cantidad actual de totems que tenga el array
-            itemsCorrectes = goodTotems.size();
-            itemsIncorrectes = badTotems.size();
-
-        } catch (IOException e) {
-            throw new RuntimeException(e);
         }
+
+        // Añadimos la cantidad actual de totems que tenga el array
+        itemsCorrectes = goodTotems.size();
+        itemsIncorrectes = badTotems.size();
+    }
+
+    class WSListener implements WebSocketListener {
+
+        @Override
+        public boolean onOpen(WebSocket webSocket) {
+            System.out.println("Opening...");
+            return false;
+        }
+
+        @Override
+        public boolean onClose(WebSocket webSocket, int closeCode, String reason) {
+            System.out.println("Closing...");
+            return false;
+        }
+
+        @Override
+        public boolean onMessage(WebSocket webSocket, String packet) {
+            JSONObject obj = new JSONObject(packet);
+            if(obj.get("type").equals("llistaTotems")){
+                JSONObject totems = obj.getJSONObject("totemsServer");
+                Map<String, Map<String, int[]>> mapTotems = new HashMap<>();
+
+                for (String cicles : totems.keySet()) {
+                    JSONObject ocupacions = totems.getJSONObject(cicles);
+                    Map<String, int[]> subMap = new HashMap<>();
+                    for (String ocupacio : ocupacions.keySet()) {
+                        int[] arr = new int[2];
+                        arr[0] = ocupacions.getJSONArray(ocupacio).getInt(0);
+                        arr[1] = ocupacions.getJSONArray(ocupacio).getInt(1);
+                        subMap.put(ocupacio, arr);
+                    }
+                    mapTotems.put(cicles, subMap);
+                }
+
+                setTotems(mapTotems);
+            }
+
+            return false;
+        }
+
+        @Override
+        public boolean onMessage(WebSocket webSocket, byte[] packet) {
+            System.out.println("Message:");
+            return false;
+        }
+
+        @Override
+        public boolean onError(WebSocket webSocket, Throwable error) {
+            System.out.println("ERROR:"+error.toString());
+            return false;
+        }
+    }
+
+    public void connectar(WebSocket socket) {
+        JSONObject obj = new JSONObject();
+        JSONObject user = new JSONObject();
+        user.put("nom_jugador", game.alies);
+        user.put("cicle", game.cicle);
+
+        obj.put("type", "info_usuari");
+        obj.put("message", user);
+
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        socket.send(obj.toString());
+    }
+
+    public void desconnectar(WebSocket socket) {
+        JSONObject obj = new JSONObject();
+        JSONObject user = new JSONObject();
+        user.put("nom_jugador", game.alies);
+        user.put("cicle", game.cicle);
+
+        obj.put("type", "desconnectar");
+        obj.put("message", user);
+
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        socket.send(obj.toString());
+    }
+    public void removeTotem(String totemName) {
+        JSONObject obj = new JSONObject();
+        JSONObject totem = new JSONObject();
+        totem.put("totem", totemName);
+
+        obj.put("type", "remove_totem");
+        obj.put("message", totem);
+
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        socket.send(obj.toString());
+    }
+    public void sendPosition(float x, float y) {
+        if(itemsCorrectes == 0){
+            desconnectar(socket);
+            game.setScreen(new EndScreen(game, stateTime, 5 - itemsCorrectes, 5 - itemsIncorrectes));
+        }
+
+        JSONObject obj = new JSONObject();
+        JSONObject user = new JSONObject();
+        user.put("jugador", game.alies);
+        user.put("pos_x", x);
+        user.put("pos_y", y);
+
+        obj.put("type", "pos_jugador");
+        obj.put("message", user);
+
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        socket.send(obj.toString());
     }
 
     public void reDrawGoodEggs(float delta, TextureRegion eggChange){
@@ -622,7 +667,7 @@ public class MultiplayerGameScreen extends ScreenAdapter {
 
             float scrollAmount = scrollSpeed * scrollTimer;
             int visibleChars = Math.min(maxVisibleChars, totem.length() - currentPosition);
-            String visibleText = "";
+            String visibleText;
             if (currentPosition >= 0 && currentPosition < totem.length()) {
                 visibleText = totem.substring(currentPosition, Math.min(currentPosition + visibleChars, totem.length()));
                 font.draw(batch, visibleText, x, y);
@@ -656,7 +701,7 @@ public class MultiplayerGameScreen extends ScreenAdapter {
 
             float scrollAmount = scrollSpeed * scrollTimer;
             int visibleChars = Math.min(maxVisibleChars, totem.length() - currentPosition);
-            String visibleText = "";
+            String visibleText;
             if (currentPosition >= 0 && currentPosition < totem.length()) {
                 visibleText = totem.substring(currentPosition, Math.min(currentPosition + visibleChars, totem.length()));
                 font.draw(batch, visibleText, x, y);

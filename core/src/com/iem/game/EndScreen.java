@@ -1,8 +1,6 @@
 package com.iem.game;
 
 import static com.iem.game.RankingScreen.BUTTON_WIDTH_PERCENT;
-import static com.iem.utils.Utils.createButton;
-import static com.iem.utils.Utils.createLabel;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
@@ -13,18 +11,16 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
-import com.github.czyzby.websocket.WebSocket;
 import com.iem.utils.APIPost;
+import com.iem.utils.Utils;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
 
 public class EndScreen extends ScreenAdapter {
 
     proyectoIEM game;
-    WebSocket socketEnd;
     Stage stage;
     Button guardar;
     String dispositiu;
@@ -41,14 +37,6 @@ public class EndScreen extends ScreenAdapter {
         this.time = time;
         this.totalItemsC = itemsC;
         this.totalItemsInc = itemsInc;
-    }
-
-    public EndScreen(proyectoIEM game, float time, int itemsC, int itemsInc, WebSocket socket) {
-        this.game = game;
-        this.time = time;
-        this.totalItemsC = itemsC;
-        this.totalItemsInc = itemsInc;
-        this.socketEnd = socket;
     }
 
     @Override
@@ -68,19 +56,18 @@ public class EndScreen extends ScreenAdapter {
         float buttonWidth = Gdx.graphics.getWidth() * BUTTON_WIDTH_PERCENT;
         float buttonHeight = Gdx.graphics.getHeight() * 0.10f;
 
-        stage.addActor(createLabel("Temps emprat: " + String.format("%d:%02d", Math.round(time / 60), Math.round(time % 60)), Gdx.graphics.getWidth() * 0.3f, Gdx.graphics.getHeight() * 0.6f, fontSize));
-        stage.addActor(createLabel("Items correctes recollits: " + totalItemsC, Gdx.graphics.getWidth() * 0.3f, Gdx.graphics.getHeight() * 0.5f, fontSize));
-        stage.addActor(createLabel("Items incorrectes recollits: " + totalItemsInc, Gdx.graphics.getWidth() * 0.3f, Gdx.graphics.getHeight() * 0.4f, fontSize));
+        stage.addActor(Utils.createLabel("Temps emprat: " + String.format("%d:%02d", Math.round(time / 60), Math.round(time % 60)), Gdx.graphics.getWidth() * 0.3f, Gdx.graphics.getHeight() * 0.6f, fontSize));
+        stage.addActor(Utils.createLabel("Items correctes recollits: " + totalItemsC, Gdx.graphics.getWidth() * 0.3f, Gdx.graphics.getHeight() * 0.5f, fontSize));
+        stage.addActor(Utils.createLabel("Items incorrectes recollits: " + totalItemsInc, Gdx.graphics.getWidth() * 0.3f, Gdx.graphics.getHeight() * 0.4f, fontSize));
 
-        stage.addActor(createButton("Tornar a inici", Gdx.graphics.getWidth() * .25f, Gdx.graphics.getHeight() * .15f, buttonWidth, buttonHeight, fontSize,new ClickListener(){
+        stage.addActor(Utils.createButton("Tornar a inici", Gdx.graphics.getWidth() * .25f, Gdx.graphics.getHeight() * .15f, buttonWidth, buttonHeight, fontSize,new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y)  {
                 game.sound.play(1.0f);
                 game.setScreen(new TitleScreen(game));
-                desconnectar(socketEnd);
             }
         }));
-        guardar = createButton("Guardar record", Gdx.graphics.getWidth() * .50f, Gdx.graphics.getHeight() * .15f, buttonWidth, buttonHeight, fontSize,new ClickListener(){
+        guardar = Utils.createButton("Guardar record", Gdx.graphics.getWidth() * .50f, Gdx.graphics.getHeight() * .15f, buttonWidth, buttonHeight, fontSize,new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y)  {
                 try {
@@ -112,24 +99,7 @@ public class EndScreen extends ScreenAdapter {
         stage.draw();
         stage.act();
     }
-    public void desconnectar(WebSocket socket) {
-        // Sends user login into the WebSocket
-        JSONObject obj = new JSONObject();
-        JSONObject user = new JSONObject();
-        user.put("nom_jugador", game.alies);
-        user.put("cicle", game.cicle);
 
-        obj.put("type", "desconnectar");
-        obj.put("message", user);
-
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-        socket.send(obj.toString());
-    }
 
     @Override
     public void hide() {
@@ -149,7 +119,7 @@ public class EndScreen extends ScreenAdapter {
             StringBuffer sb = new APIPost().sendPost("https://proyecteiem-api-production.up.railway.app/set_record",test);
             JSONObject objResponse = new JSONObject(sb.toString());
             if(objResponse.getString("status").equals("OK")){
-                stage.addActor(createLabel("Record guardat", Gdx.graphics.getWidth() * 0.75f, Gdx.graphics.getHeight() * 0.20f, fontSize));
+                stage.addActor(Utils.createLabel("Record guardat", Gdx.graphics.getWidth() * 0.75f, Gdx.graphics.getHeight() * 0.20f, fontSize));
                 saved = true;
             }
         } catch(Exception e) {

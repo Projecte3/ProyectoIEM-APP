@@ -29,7 +29,7 @@ public class proyectoIEM extends Game {
 
 
 	String alies = "test";
-	String cicle = "";
+	String cicle = "Gestio administrativa";
 	Texture personatge;
 
 
@@ -62,8 +62,8 @@ public class proyectoIEM extends Game {
 		font = generator.generateFont(fontParameter);
 
 		menuMusic = Gdx.audio.newMusic(Gdx.files.internal("sounds/backgroundMusic.ogg"));
-		menuMusic.setLooping(true);
-		menuMusic.play();
+		// menuMusic.setLooping(true);
+		// menuMusic.play();
 
 		title.getData().setScale(14);
 		font.getData().setScale(7);

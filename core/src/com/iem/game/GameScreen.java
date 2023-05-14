@@ -28,6 +28,7 @@ import java.util.ArrayList;
 public class GameScreen extends ScreenAdapter {
     float screenWidth = Gdx.graphics.getWidth();
     float screenHeight = Gdx.graphics.getHeight();
+
     ArrayList<String> goodTotems = new ArrayList<>();
     ArrayList<String> badTotems = new ArrayList<>();
     ArrayList<Vector2> goodTotemPositions = new ArrayList<>();
@@ -48,15 +49,15 @@ public class GameScreen extends ScreenAdapter {
     float bgPosX;
     float bgPosY;
 
-    TextureRegion IDLEFrameDown[] = new TextureRegion[1];
-    TextureRegion IDLEFrameUp[] = new TextureRegion[1];
-    TextureRegion IDLEFrameX[] = new TextureRegion[4];
+    TextureRegion[] IDLEFrameDown = new TextureRegion[1];
+    TextureRegion[] IDLEFrameUp = new TextureRegion[1];
+    TextureRegion[] IDLEFrameX = new TextureRegion[4];
 
-    TextureRegion walkFrame[] = new TextureRegion[4];
-    TextureRegion walkFrameUP[] = new TextureRegion[5];
-    TextureRegion walkFrameDown[] = new TextureRegion[5];
+    TextureRegion[] walkFrame = new TextureRegion[4];
+    TextureRegion[] walkFrameUP = new TextureRegion[5];
+    TextureRegion[] walkFrameDown = new TextureRegion[5];
 
-    TextureRegion eggRegion[] = new TextureRegion[4];
+    TextureRegion[] eggRegion = new TextureRegion[4];
 
     Animation<TextureRegion> IDLEMarioDown, IDLEMarioUP,IDLEMarioX, walkMario, walkMarioUP, walkMarioDown, eggAnimation;
 
@@ -87,12 +88,13 @@ public class GameScreen extends ScreenAdapter {
 
     int bgMovement = 5;
 
+
     int fontSize;
 
     public GameScreen(proyectoIEM game) {
         this.game = game;
 
-        camera = new OrthographicCamera();
+        camera = new OrthographicCamera(screenWidth, screenHeight);
         viewport = new FitViewport(2048, 1080, camera);
     }
 
@@ -112,6 +114,7 @@ public class GameScreen extends ScreenAdapter {
                 fontSize = 20;
                 spriteSizeX = 2;
                 spriteSizeY = 2;
+                playerSpeed = 4;
                 font = Utils.createFontMarquee(20);
                 break;
         }
@@ -121,6 +124,14 @@ public class GameScreen extends ScreenAdapter {
         egg = new Texture(Gdx.files.internal("eggs.png"));
         posx = Gdx.graphics.getWidth() / 2;
         posy = Gdx.graphics.getHeight() / 2;
+
+        float maxX = 3008 - 1280; // Límite máximo en X
+        float maxY = 2624 - 720; // Límite máximo en Y
+
+        // Limitar la posición del jugador a los límites del fondo
+        posx = MathUtils.clamp(posx, 0, maxX);
+        posy = MathUtils.clamp(posy, 0, maxY);
+
         bgPosX = 0;
         bgPosY = 0;
         playerRect = new Rectangle();
@@ -205,7 +216,6 @@ public class GameScreen extends ScreenAdapter {
             } while (tooClose);
             movingTotem(x, y, goodTotemPositions);
         }
-
         for (String totem : badTotems) {
             float x, y;
             boolean tooClose;
@@ -252,12 +262,17 @@ public class GameScreen extends ScreenAdapter {
         timerLabel.setText(String.format("%d:%02d", minutes, seconds));
         stateTime += Gdx.graphics.getDeltaTime();
 
-        camera.setToOrtho(false, screenWidth, screenHeight);
-        camera.position.set(posx, posy, 0);
-        camera.zoom = 10f;
+        camera.setToOrtho(false, 1280, 720);
+        camera.position.set(posx + 640, posy + 360, 0);
+
+        float maxCameraX = 3008 - 640;
+        float maxCameraY = 2624 - 360;
+        camera.position.x = MathUtils.clamp(camera.position.x, 640, maxCameraX);
+        camera.position.y = MathUtils.clamp(camera.position.y, 360, maxCameraY);
         camera.update();
 
         batch.begin();
+
         batch.draw(background, bgPosX , bgPosY, backgroundWidth, backgroundHeight);
         for (int i = 0; i < goodTotemPositions.size(); i++) {
             Vector2 position = goodTotemPositions.get(i);
@@ -301,7 +316,6 @@ public class GameScreen extends ScreenAdapter {
             }
             font.draw(batch, visibleText, x, y);
         }
-
         for (int i = 0; i < badTotemPositions.size(); i++) {
             Vector2 position = badTotemPositions.get(i);
             String totem = badTotems.get(i);
@@ -349,7 +363,6 @@ public class GameScreen extends ScreenAdapter {
 
             font.draw(batch, visibleText, x, y);
         }
-
         batch.end();
 
         int direction = virtual_joystick_control();
@@ -372,79 +385,73 @@ public class GameScreen extends ScreenAdapter {
             //GO UP ANIMATION
             case 1:
                 IDLEMarioDown = new Animation<>(0.25f, walkFrameUP);
-                bgPosY -= bgMovement;
 
-                for (int i = 0; i < goodTotemPositions.size(); i++) {
-                    Vector2 position = goodTotemPositions.get(i);
-
-                    position.y = position.y - bgMovement;
+                    bgPosY -= bgMovement;
+                    for (int i = 0; i < goodTotemPositions.size(); i++) {
+                        Vector2 position = goodTotemPositions.get(i);
+                        position.y = position.y - bgMovement;
+                    }
+                    for (int i = 0; i < badTotemPositions.size(); i++) {
+                        Vector2 position = badTotemPositions.get(i);
+                        position.y = position.y - bgMovement;
                     }
 
-                for (int i = 0; i < badTotemPositions.size(); i++) {
-                    Vector2 position = badTotemPositions.get(i);
 
-                    position.y = position.y - bgMovement;
-                }
-
+                playerRect.setSize(spriteSizeX, spriteSizeY);
                 batch.begin();
                 batch.draw(background, bgPosX, bgPosY, backgroundWidth,backgroundHeight);
-
                 reDrawGoodEggs(delta, eggChange);
-                playerRect.setSize(spriteSizeX, spriteSizeY);
                 batch.draw(walkUP, posx, posy, 0, 0,
                         walkUP.getRegionWidth(), walkUP.getRegionHeight(), spriteSizeX, spriteSizeY, 0);
                 batch.end();
                 break;
 
+
             //GO DOWN ANIMATION
             case 2:
                 IDLEMarioDown = new Animation<>(0.25f, walkFrameDown);
-                bgPosY += bgMovement;
 
-                for (int i = 0; i < goodTotemPositions.size(); i++) {
-                    Vector2 position = goodTotemPositions.get(i);
 
-                    position.y = position.y + bgMovement;
-                }
+                    bgPosY += bgMovement;
+                    for (int i = 0; i < goodTotemPositions.size(); i++) {
+                        Vector2 position = goodTotemPositions.get(i);
+                        position.y = position.y - bgMovement;
+                    }
+                    for (int i = 0; i < badTotemPositions.size(); i++) {
+                        Vector2 position = badTotemPositions.get(i);
+                        position.y = position.y - bgMovement;
+                    }
 
-                for (int i = 0; i < badTotemPositions.size(); i++) {
-                    Vector2 position = badTotemPositions.get(i);
 
-                    position.y = position.y + bgMovement;
-                }
-
+                playerRect.setSize(spriteSizeX, spriteSizeY);
                 batch.begin();
                 batch.draw(background, bgPosX, bgPosY, backgroundWidth,backgroundHeight);
                 reDrawGoodEggs(delta, eggChange);
-                playerRect.setSize(spriteSizeX, spriteSizeY);
                 batch.draw(walkDown, posx, posy, 0, 0,
                         walkDown.getRegionWidth(), walkDown.getRegionHeight(), spriteSizeX, spriteSizeY, 0);
                 batch.end();
-
                 break;
 
             //GO LEFT ANIMATION
             case 3:
                 IDLEMarioDown = new Animation<>(0.25f, walkFrame);
-                bgPosX += bgMovement;
 
-                for (int i = 0; i < goodTotemPositions.size(); i++) {
-                    Vector2 position = goodTotemPositions.get(i);
+                    bgPosX += bgMovement;
+                    for (int i = 0; i < goodTotemPositions.size(); i++) {
+                        Vector2 position = goodTotemPositions.get(i);
+                        position.x = position.x + bgMovement;
+                    }
+                    for (int i = 0; i < badTotemPositions.size(); i++) {
+                        Vector2 position = badTotemPositions.get(i);
+                        position.x = position.x + bgMovement;
+                    }
 
-                    position.x = position.x + bgMovement;
-                }
-
-                for (int i = 0; i < badTotemPositions.size(); i++) {
-                    Vector2 position = badTotemPositions.get(i);
-
-                    position.x = position.x + bgMovement;
-                }
 
                 batch.begin();
                 batch.draw(background, bgPosX, bgPosY, backgroundWidth,backgroundHeight);
                 reDrawGoodEggs(delta, eggChange);
                 playerRect.setSize(spriteSizeX, spriteSizeY);
-                batch.draw(walkFrameX, posx, posy, 0 + walkFrameX.getRegionWidth(), 0,
+                batch.draw(walkFrameX, posx, posy, walkFrameX.getRegionWidth(), 0,
                         walkFrameX.getRegionWidth(), walkFrameX.getRegionHeight(), -spriteSizeX, spriteSizeY, 0);
                 playerRect.setPosition(posx, posy);
                 batch.end();
@@ -454,18 +461,17 @@ public class GameScreen extends ScreenAdapter {
             //GO RIGHT ANIMATION
             case 4:
                 IDLEMarioDown = new Animation<>(0.25f, walkFrame);
-                bgPosX -= bgMovement;
-                for (int i = 0; i < goodTotemPositions.size() ; i++) {
-                    Vector2 position = goodTotemPositions.get(i);
 
-                    position.x = position.x - bgMovement;
-                }
+                    bgPosX -= bgMovement;
+                    for (int i = 0; i < goodTotemPositions.size() ; i++) {
+                        Vector2 position = goodTotemPositions.get(i);
+                        position.x = position.x - bgMovement;
+                    }
+                    for (int i = 0; i < badTotemPositions.size(); i++) {
+                        Vector2 position = badTotemPositions.get(i);
+                        position.x = position.x - bgMovement;
+                    }
 
-                for (int i = 0; i < badTotemPositions.size(); i++) {
-                    Vector2 position = badTotemPositions.get(i);
-
-                    position.x = position.x - bgMovement;
-                }
 
                 batch.begin();
                 batch.draw(background, bgPosX, bgPosY, backgroundWidth,backgroundHeight);
@@ -560,7 +566,7 @@ public class GameScreen extends ScreenAdapter {
 
             float scrollAmount = scrollSpeed * scrollTimer;
             int visibleChars = Math.min(maxVisibleChars, totem.length() - currentPosition);
-            String visibleText = "";
+            String visibleText;
             if (currentPosition >= 0 && currentPosition < totem.length()) {
                 visibleText = totem.substring(currentPosition, Math.min(currentPosition + visibleChars, totem.length()));
                 font.draw(batch, visibleText, x, y);
@@ -594,7 +600,7 @@ public class GameScreen extends ScreenAdapter {
 
             float scrollAmount = scrollSpeed * scrollTimer;
             int visibleChars = Math.min(maxVisibleChars, totem.length() - currentPosition);
-            String visibleText = "";
+            String visibleText;
             if (currentPosition >= 0 && currentPosition < totem.length()) {
                 visibleText = totem.substring(currentPosition, Math.min(currentPosition + visibleChars, totem.length()));
                 font.draw(batch, visibleText, x, y);
