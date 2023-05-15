@@ -271,96 +271,103 @@ public class MultiplayerGameScreen extends ScreenAdapter {
         batch.draw(background, bgPosX , bgPosY, backgroundWidth, backgroundHeight);
 
         for (int i = 0; i < goodTotemPositions.size(); i++) {
-            Vector2 position = goodTotemPositions.get(i);
-            String totem = goodTotems.get(i);
-            float x = position.x;
-            float y = position.y;
-            float scrollAmount = scrollSpeed * scrollTimer;
-            int visibleChars = Math.min(maxVisibleChars, totem.length() - currentPosition);
-            String visibleText = "";
-            if (currentPosition >= 0 && currentPosition < totem.length()) {
-                visibleText = totem.substring(currentPosition, Math.min(currentPosition + visibleChars, totem.length()));
-                font.draw(batch, visibleText, x, y);
-            }
-
-            // Aquí dibujamos la textura después de dibujar el texto
-            batch.draw(eggChange, x + 120, y, eggChange.getRegionWidth(), eggChange.getRegionHeight()-10,
-                    eggChange.getRegionWidth(), eggChange.getRegionHeight(), spriteSizeX, spriteSizeY, 0);
-            timer += delta;
-            if (timer >= delay) {
-                currentPosition++;
-                if (currentPosition >= totem.length()) {
-                    currentPosition = visibleChars - 1;
+            try {
+                Vector2 position = goodTotemPositions.get(i);
+                String totem = goodTotems.get(i);
+                float x = position.x;
+                float y = position.y;
+                float scrollAmount = scrollSpeed * scrollTimer;
+                int visibleChars = Math.min(maxVisibleChars, totem.length() - currentPosition);
+                String visibleText = "";
+                if (currentPosition >= 0 && currentPosition < totem.length()) {
+                    visibleText = totem.substring(currentPosition, Math.min(currentPosition + visibleChars, totem.length()));
+                    font.draw(batch, visibleText, x, y);
                 }
-                timer = 0;
-            }
-            scrollTimer += delta;
-            if (scrollAmount >= font.getSpaceXadvance() * visibleChars) {
-                scrollTimer = 0;
-            }
-            float speed = 0.5f;
-            scrollPosition += speed * delta;
+
+                // Aquí dibujamos la textura después de dibujar el texto
+                batch.draw(eggChange, x + 120, y, eggChange.getRegionWidth(), eggChange.getRegionHeight()-10,
+                        eggChange.getRegionWidth(), eggChange.getRegionHeight(), spriteSizeX, spriteSizeY, 0);
+                timer += delta;
+                if (timer >= delay) {
+                    currentPosition++;
+                    if (currentPosition >= totem.length()) {
+                        currentPosition = visibleChars - 1;
+                    }
+                    timer = 0;
+                }
+                scrollTimer += delta;
+                if (scrollAmount >= font.getSpaceXadvance() * visibleChars) {
+                    scrollTimer = 0;
+                }
+                float speed = 0.5f;
+                scrollPosition += speed * delta;
 
 
-            Rectangle bounds = new Rectangle(x, y, 200, 50);
-            if (bounds.contains(playerRect)) {
-                game.goodItem.play(1.0f);
-                removeTotem(goodTotems.get(i));
-                goodTotems.remove(i);
-                goodTotemPositions.remove(i);
+                Rectangle bounds = new Rectangle(x, y, 200, 50);
+                if (bounds.contains(playerRect)) {
+                    game.goodItem.play(1.0f);
+                    removeTotem(goodTotems.get(i));
+                    goodTotems.remove(i);
+                    goodTotemPositions.remove(i);
 
-                itemsCorrectes--;
-                totemsCorrectesLabel.setText("Totems correctes: " + itemsCorrectes);
+                    itemsCorrectes--;
+                    totemsCorrectesLabel.setText("Totems correctes: " + itemsCorrectes);
+                }
+                font.draw(batch, visibleText, x, y);
+            } catch (Exception e){
+
             }
-            font.draw(batch, visibleText, x, y);
         }
 
         for (int i = 0; i < badTotemPositions.size(); i++) {
-            Vector2 position = badTotemPositions.get(i);
-            String totem = badTotems.get(i);
-            float x = position.x;
-            float y = position.y;
-            float scrollAmount = scrollSpeed * scrollTimer;
-            int visibleChars = Math.min(maxVisibleChars, totem.length() - currentPosition);
-            String visibleText = "";
-            if (currentPosition >= 0 && currentPosition < totem.length()) {
-                try {
-                    visibleText = totem.substring(currentPosition, currentPosition + visibleChars);
-                } catch (StringIndexOutOfBoundsException e) {
-                    visibleText = totem.substring(currentPosition);
+            try {
+                Vector2 position = badTotemPositions.get(i);
+                String totem = badTotems.get(i);
+                float x = position.x;
+                float y = position.y;
+                float scrollAmount = scrollSpeed * scrollTimer;
+                int visibleChars = Math.min(maxVisibleChars, totem.length() - currentPosition);
+                String visibleText = "";
+                if (currentPosition >= 0 && currentPosition < totem.length()) {
+                    try {
+                        visibleText = totem.substring(currentPosition, currentPosition + visibleChars);
+                    } catch (StringIndexOutOfBoundsException e) {
+                        visibleText = totem.substring(currentPosition);
+                    }
+                    font.draw(batch, visibleText, x, y);
                 }
+                batch.draw(eggChange, x + 120, y, eggChange.getRegionWidth(), eggChange.getRegionHeight()-10,
+                        eggChange.getRegionWidth(), eggChange.getRegionHeight(), spriteSizeX, spriteSizeY, 0);
+                timer += delta;
+                if (timer >= delay) {
+                    currentPosition++;
+                    if (currentPosition >= totem.length()) {
+                        currentPosition = visibleChars - 1;
+                    }
+                    timer = 0;
+                }
+                scrollTimer += delta;
+                if (scrollAmount >= font.getSpaceXadvance() * visibleChars) {
+                    scrollTimer = 0;
+                }
+                float speed = 0.5f;
+                scrollPosition += speed * delta;
+
+
+                Rectangle bounds = new Rectangle(x, y, 200, 100);
+                if (bounds.contains(playerRect)) {
+                    game.badItem.play(1.0f);
+                    removeTotem(badTotems.get(i));
+                    badTotems.remove(i);
+                    badTotemPositions.remove(i);
+
+                    itemsIncorrectes--;
+                    totemsIncorrectesLabel.setText("Totems incorrectes: " + itemsIncorrectes);
+                }
+
                 font.draw(batch, visibleText, x, y);
-            }
-            batch.draw(eggChange, x + 120, y, eggChange.getRegionWidth(), eggChange.getRegionHeight()-10,
-                    eggChange.getRegionWidth(), eggChange.getRegionHeight(), spriteSizeX, spriteSizeY, 0);
-            timer += delta;
-            if (timer >= delay) {
-                currentPosition++;
-                if (currentPosition >= totem.length()) {
-                    currentPosition = visibleChars - 1;
-                }
-                timer = 0;
-            }
-            scrollTimer += delta;
-            if (scrollAmount >= font.getSpaceXadvance() * visibleChars) {
-                scrollTimer = 0;
-            }
-            float speed = 0.5f;
-            scrollPosition += speed * delta;
+            } catch (Exception e){}
 
-
-            Rectangle bounds = new Rectangle(x, y, 200, 100);
-            if (bounds.contains(playerRect)) {
-                game.badItem.play(1.0f);
-                removeTotem(badTotems.get(i));
-                badTotems.remove(i);
-                badTotemPositions.remove(i);
-
-                itemsIncorrectes--;
-                totemsIncorrectesLabel.setText("Totems incorrectes: " + itemsIncorrectes);
-            }
-
-            font.draw(batch, visibleText, x, y);
         }
 
         batch.end();
@@ -541,7 +548,6 @@ public class MultiplayerGameScreen extends ScreenAdapter {
         switch (players.length){
             case 1:
                 System.out.println("test1: x: "+(((float) playersPositions.get(players[0])[0]))+", y: "+(((float) playersPositions.get(players[0])[1])));
-                batch.draw(IDLEDown2, (((float) playersPositions.get(players[0])[0])* -1), (((float) playersPositions.get(players[0])[1]) * -1), 0, 0, IDLEDown2.getRegionWidth(), IDLEDown2.getRegionHeight(), spriteSizeX, spriteSizeY, 0);
 
                 playerNameLabel.setText(players[0]);
                 playerNameLabel.setPosition(((playersPositions.get(players[0])[0]) * -1)-20, ((playersPositions.get(players[0])[1]) * -1)-20);
@@ -598,7 +604,7 @@ public class MultiplayerGameScreen extends ScreenAdapter {
 
         if(itemsCorrectes == 0){
             desconnectar(socket);
-            game.setScreen(new EndScreen(game, stateTime, 5 - itemsCorrectes, 5 - itemsIncorrectes));
+            game.setScreen(new EndScreen(game, stateTime, 5 - itemsCorrectes,  itemsIncorrectes));
         }
 
         stage.draw();
@@ -707,10 +713,8 @@ public class MultiplayerGameScreen extends ScreenAdapter {
                     }
 
                     break;
-            case "remove_totem":
-                JSONObject totemRemoved = obj.getJSONObject("message");
-                String totemName = totemRemoved.getString("totem");
-
+            case "totem_borrado":
+                String totemName = obj.getString("totem");
                 for (int i = 0; i < goodTotems.size(); i++){
                     if (totemName.equals(goodTotems.get(i))){
                         goodTotems.remove(i);
