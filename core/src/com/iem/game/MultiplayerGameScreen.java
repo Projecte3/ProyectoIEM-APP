@@ -545,7 +545,7 @@ public class MultiplayerGameScreen extends ScreenAdapter {
         switch (players.length){
             case 1:
                 System.out.println("test1: x: "+(((float) playersPositions.get(players[0])[0]))+", y: "+(((float) playersPositions.get(players[0])[1])));
-                batch.draw(IDLEDown2, (((float) playersPositions.get(players[0])[0])), (((float) playersPositions.get(players[0])[1])), 0, 0, IDLEDown2.getRegionWidth(), IDLEDown2.getRegionHeight(), spriteSizeX, spriteSizeY, 0);
+                batch.draw(IDLEDown2, (((float) playersPositions.get(players[0])[0])* -1), (((float) playersPositions.get(players[0])[1]) * -1), 0, 0, IDLEDown2.getRegionWidth(), IDLEDown2.getRegionHeight(), spriteSizeX, spriteSizeY, 0);
 
                 playerNameLabel.setText(players[0]);
                 playerNameLabel.setPosition(((playersPositions.get(players[0])[0]) * -1)-20, ((playersPositions.get(players[0])[1]) * -1)-20);
