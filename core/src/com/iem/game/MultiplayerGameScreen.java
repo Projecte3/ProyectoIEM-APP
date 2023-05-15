@@ -410,10 +410,6 @@ public class MultiplayerGameScreen extends ScreenAdapter {
                     System.out.println("Player" +player+"y: "+playersPositions.get(player)[1]);
                 }
 
-
-
-
-
                 batch.begin();
                 batch.draw(background, bgPosX, bgPosY, backgroundWidth,backgroundHeight);
 
@@ -711,6 +707,21 @@ public class MultiplayerGameScreen extends ScreenAdapter {
                     }
 
                     break;
+            case "remove_totem":
+                JSONObject totemRemoved = obj.getJSONObject("message");
+                String totemName = totemRemoved.getString("totem");
+
+                for (int i = 0; i < goodTotems.size(); i++){
+                    if (totemName.equals(goodTotems.get(i))){
+                        goodTotems.remove(i);
+                    }
+                }
+                for (int i = 0; i < badTotems.size(); i++){
+                    if (totemName.equals(badTotems.get(i))){
+                        badTotems.remove(i);
+                    }
+                }
+                break;
             }
 
             return false;
@@ -795,7 +806,7 @@ public class MultiplayerGameScreen extends ScreenAdapter {
         JSONObject user = new JSONObject();
         user.put("jugador", game.alies);
         user.put("pos_x", bgPosX + posx);
-        user.put("pos_y", bgPosX + posy);
+        user.put("pos_y", bgPosY + posy);
 
 
         obj.put("type", "pos_jugador");
