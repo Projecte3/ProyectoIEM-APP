@@ -98,7 +98,7 @@ public class MultiplayerGameScreen extends ScreenAdapter {
 
     PositionThread positionThread = new PositionThread();
 
-    HashMap<String, float[]> playersPositions = new HashMap<String, float[]>();
+    HashMap<String, int[]> playersPositions = new HashMap<String, int[]>();
 
     static float movementX;
     static float movementY;
@@ -676,13 +676,11 @@ public class MultiplayerGameScreen extends ScreenAdapter {
                     JSONObject players = obj.getJSONObject("message");
                     for (String player: players.keySet()) {
                         if (!player.equals(game.alies)){
-                            float posXActual = playersPositions.get(player)[0];
-                            float posYActual = playersPositions.get(player)[1];
-                            float[] arr = new float[2];
-                            float posXNueva = posXActual + players.getJSONArray(player).getFloat(0);
-                            float posYNueva = posYActual + players.getJSONArray(player).getFloat(1);
-                            arr[0] = posXNueva;
-                            arr[1] = posYActual;
+
+                            int[] arr = new int[2];
+
+                            arr[0] = players.getJSONArray(player).getInt(0);
+                            arr[1] = players.getJSONArray(player).getInt(1);;
                             playersPositions.put(player,arr);
                         }
                     }
@@ -767,20 +765,13 @@ public class MultiplayerGameScreen extends ScreenAdapter {
         socket.send(obj.toString());
     }
     public static void sendPosition() {
-        float posXActual = bgPosX * -1;
-        float posYActual = bgPosY * -1;
-
-        movementX = posXActual - movementX;
-        movementY = posYActual - movementY;
 
         JSONObject obj = new JSONObject();
         JSONObject user = new JSONObject();
         user.put("jugador", game.alies);
-        user.put("pos_x", movementX);
-        user.put("pos_y", movementY);
+        user.put("pos_x", bgPosX + posx);
+        user.put("pos_y", bgPosX + posy);
 
-        movementX = bgPosX * -1;
-        movementY = bgPosY * -1;
 
         obj.put("type", "pos_jugador");
         obj.put("message", user);
