@@ -235,9 +235,12 @@ public class MultiplayerGameScreen extends ScreenAdapter {
         totemsIncorrectesLabel = Utils.createLabel("Totems incorrectes: " + itemsIncorrectes, Gdx.graphics.getWidth() * .01f, Gdx.graphics.getHeight() * .04f, fontSize);
         timerLabel = Utils.createLabel("00:00", Gdx.graphics.getWidth() * .475f, Gdx.graphics.getHeight() * .95f, fontSize + 40);
 
+
         stage.addActor(totemsCorrectesLabel);
         stage.addActor(totemsIncorrectesLabel);
         stage.addActor(timerLabel);
+
+
 
         Gdx.input.setInputProcessor(stage);
 
@@ -269,6 +272,8 @@ public class MultiplayerGameScreen extends ScreenAdapter {
 
         batch.begin();
         batch.draw(background, bgPosX , bgPosY, backgroundWidth, backgroundHeight);
+
+
 
         for (int i = 0; i < goodTotemPositions.size(); i++) {
             try {
@@ -412,9 +417,7 @@ public class MultiplayerGameScreen extends ScreenAdapter {
 
 
                 for (String player: playersPositions.keySet()){
-                    System.out.println("Player" +player+"y: "+playersPositions.get(player)[1]);
                     playersPositions.get(player)[1] = playersPositions.get(player)[1] - bgMovement;
-                    System.out.println("Player" +player+"y: "+playersPositions.get(player)[1]);
                 }
 
                 batch.begin();
@@ -447,9 +450,7 @@ public class MultiplayerGameScreen extends ScreenAdapter {
 
 
                 for (String player: playersPositions.keySet()){
-                    System.out.println("Player" +player+" y: "+playersPositions.get(player)[1]);
                     playersPositions.get(player)[1] = playersPositions.get(player)[1] + bgMovement;
-                    System.out.println("Player" +player+"y: "+playersPositions.get(player)[1]);
                 }
 
 
@@ -484,9 +485,7 @@ public class MultiplayerGameScreen extends ScreenAdapter {
 
 
                 for (String player: playersPositions.keySet()){
-                    System.out.println("Player" +player+"x: "+playersPositions.get(player)[0]);
                     playersPositions.get(player)[0] = playersPositions.get(player)[0] + bgMovement;
-                    System.out.println("Player" +player+"x: "+playersPositions.get(player)[0]);
                 }
 
 
@@ -520,9 +519,7 @@ public class MultiplayerGameScreen extends ScreenAdapter {
 
 
                 for (String player: playersPositions.keySet()){
-                    System.out.println("Player" +player+" x: "+playersPositions.get(player)[0]);
                     playersPositions.get(player)[0] = playersPositions.get(player)[0] - bgMovement;
-                    System.out.println("Player" +player+" x: "+playersPositions.get(player)[0]);
                 }
 
 
@@ -658,7 +655,9 @@ public class MultiplayerGameScreen extends ScreenAdapter {
 
         // Añadimos la cantidad actual de totems que tenga el array
         itemsCorrectes = goodTotems.size();
+        totemsIncorrectesLabel.setText("Totems correctes: " + itemsCorrectes);
         itemsIncorrectes = badTotems.size();
+        totemsIncorrectesLabel.setText("Totems incorrectes: " + itemsIncorrectes);
     }
 
     class WSListener implements WebSocketListener {
@@ -720,6 +719,7 @@ public class MultiplayerGameScreen extends ScreenAdapter {
                         goodTotems.remove(i);
                         goodTotemPositions.remove(i);
                         itemsCorrectes--;
+                        totemsCorrectesLabel.setText("Totems correctes: " + itemsCorrectes);
                     }
                 }
                 for (int i = 0; i < badTotems.size(); i++){
@@ -727,6 +727,7 @@ public class MultiplayerGameScreen extends ScreenAdapter {
                         badTotems.remove(i);
                         badTotemPositions.remove(i);
                         itemsIncorrectes--;
+                        totemsIncorrectesLabel.setText("Totems incorrectes: " + itemsIncorrectes);
                     }
                 }
                 break;
