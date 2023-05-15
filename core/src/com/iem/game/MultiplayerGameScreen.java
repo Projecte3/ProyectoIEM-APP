@@ -718,18 +718,19 @@ public class MultiplayerGameScreen extends ScreenAdapter {
                     if (totemName.equals(goodTotems.get(i))){
                         goodTotems.remove(i);
                         goodTotemPositions.remove(i);
-                        itemsCorrectes--;
-                        totemsCorrectesLabel.setText("Totems correctes: " + itemsCorrectes);
+
                     }
                 }
                 for (int i = 0; i < badTotems.size(); i++){
                     if (totemName.equals(badTotems.get(i))){
                         badTotems.remove(i);
                         badTotemPositions.remove(i);
-                        itemsIncorrectes--;
-                        totemsIncorrectesLabel.setText("Totems incorrectes: " + itemsIncorrectes);
                     }
                 }
+                itemsCorrectes = goodTotems.size();
+                totemsIncorrectesLabel.setText("Totems correctes: " + itemsCorrectes);
+                itemsIncorrectes = badTotems.size();
+                totemsIncorrectesLabel.setText("Totems incorrectes: " + itemsIncorrectes);
                 break;
             }
 
