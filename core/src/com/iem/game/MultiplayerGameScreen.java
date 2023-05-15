@@ -718,11 +718,15 @@ public class MultiplayerGameScreen extends ScreenAdapter {
                 for (int i = 0; i < goodTotems.size(); i++){
                     if (totemName.equals(goodTotems.get(i))){
                         goodTotems.remove(i);
+                        goodTotemPositions.remove(i);
+                        itemsCorrectes--;
                     }
                 }
                 for (int i = 0; i < badTotems.size(); i++){
                     if (totemName.equals(badTotems.get(i))){
                         badTotems.remove(i);
+                        badTotemPositions.remove(i);
+                        itemsIncorrectes--;
                     }
                 }
                 break;
@@ -771,14 +775,7 @@ public class MultiplayerGameScreen extends ScreenAdapter {
         obj.put("type", "desconnectar");
         obj.put("message", user);
 
-        /*
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
 
-         */
 
         socket.send(obj.toString());
 
@@ -790,17 +787,10 @@ public class MultiplayerGameScreen extends ScreenAdapter {
         JSONObject totem = new JSONObject();
         totem.put("totem", totemName);
 
+
         obj.put("type", "remove_totem");
         obj.put("message", totem);
 
-        /*
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-         */
 
         socket.send(obj.toString());
     }
@@ -816,12 +806,6 @@ public class MultiplayerGameScreen extends ScreenAdapter {
         obj.put("type", "pos_jugador");
         obj.put("message", user);
 
-        /*
-        try {
-            Thread.sleep(500);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        */
 
         socket.send(obj.toString());
     }
