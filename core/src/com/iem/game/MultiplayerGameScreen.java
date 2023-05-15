@@ -82,15 +82,21 @@ public class MultiplayerGameScreen extends ScreenAdapter {
     BitmapFont font;
     float scrollPosition = 0f;
     int currentPosition = 0;
-    float delay = 0.7f;
+    float delay = 1.2f;
     float scrollTimer = 0;
     int maxVisibleChars = 20;
-    float scrollSpeed = 0.5f;
+    float scrollSpeed = 0.3f;
 
     Stage stage;
     Label totemsCorrectesLabel;
     Label totemsIncorrectesLabel;
     Label timerLabel;
+
+    //PlapyerName Labels
+    Label playerNameLabel;
+    Label playerNameLabel2;
+    Label playerNameLabel3;
+    Label.LabelStyle style = new Label.LabelStyle();
 
     int bgMovement = 5;
 
@@ -154,6 +160,14 @@ public class MultiplayerGameScreen extends ScreenAdapter {
         movementX = posx;
         movementY = posy;
         playerRect = new Rectangle();
+
+        style.font = font;
+        playerNameLabel = new Label("", style);
+        stage.addActor(playerNameLabel);
+        playerNameLabel2 = new Label("", style);
+        stage.addActor(playerNameLabel2);
+        playerNameLabel3 = new Label("", style);
+        stage.addActor(playerNameLabel3);
 
         //IDLE FRAME DOWN
         IDLEFrameDown[0] = new TextureRegion(walkSheet,117,123,20,39);
@@ -531,33 +545,44 @@ public class MultiplayerGameScreen extends ScreenAdapter {
         switch (players.length){
             case 1:
                 System.out.println("test1: x: "+(((float) playersPositions.get(players[0])[0]))+", y: "+(((float) playersPositions.get(players[0])[1])));
+                batch.draw(IDLEDown2, (((float) playersPositions.get(players[0])[0])), (((float) playersPositions.get(players[0])[1])), 0, 0, IDLEDown2.getRegionWidth(), IDLEDown2.getRegionHeight(), spriteSizeX, spriteSizeY, 0);
+
+                playerNameLabel.setText(players[0]);
+                playerNameLabel.setPosition(((playersPositions.get(players[0])[0]) * -1)-20, ((playersPositions.get(players[0])[1]) * -1)-20);
                 batch.draw(IDLEDown2, (((float) playersPositions.get(players[0])[0])) * -1, (((float) playersPositions.get(players[0])[1])) * -1, 0, 0,
                         IDLEDown.getRegionWidth(), IDLEDown.getRegionHeight(), spriteSizeX, spriteSizeY, 0);
                 break;
             case 2:
 
-                System.out.println("test1: x: "+(((float) playersPositions.get(players[0])[0]))+", y: "+(((float) playersPositions.get(players[0])[1])));
-                System.out.println("test2: x: "+(((float) playersPositions.get(players[1])[0]))+", y: "+(((float) playersPositions.get(players[1])[1])));
+                playerNameLabel.setText(players[0]);
+                playerNameLabel.setPosition(((playersPositions.get(players[0])[0]) * -1) - 20, ((playersPositions.get(players[0])[1]) * -1) - 3);
 
 
                 batch.draw(IDLEDown2, (((float) playersPositions.get(players[0])[0])) * -1, (((float) playersPositions.get(players[0])[1])) * -1, 0, 0,
                         IDLEDown.getRegionWidth(), IDLEDown.getRegionHeight(), spriteSizeX, spriteSizeY, 0);
-                batch.draw(IDLEDown2, (((float) playersPositions.get(players[1])[0])) * -1, (((float) playersPositions.get(players[1])[1])) * -1, 0, 0,
+
+                playerNameLabel2.setText(players[1]);
+                playerNameLabel2.setPosition(((playersPositions.get(players[1])[0]) * -1) - 20, ((playersPositions.get(players[1])[1]) * -1) -3);
+                batch.draw(IDLEDown2, (((float) playersPositions.get(players[1])[0]) * -1), (((float) playersPositions.get(players[1])[1]) * -1), 0, 0,
                         IDLEDown.getRegionWidth(), IDLEDown.getRegionHeight(), spriteSizeX, spriteSizeY, 0);
                 break;
             case 3:
-
-                System.out.println("test1: x: "+(((float) playersPositions.get(players[0])[0]))+", y: "+(((float) playersPositions.get(players[0])[1])));
-                System.out.println("test2: x: "+(((float) playersPositions.get(players[1])[0]))+", y: "+(((float) playersPositions.get(players[1])[1])));
-                System.out.println("test3: x: "+(((float) playersPositions.get(players[2])[0]))+", y: "+(((float) playersPositions.get(players[2])[1])));
-
-
-
-                batch.draw(IDLEDown2, (((float) playersPositions.get(players[0])[0])) * -1, (((float) playersPositions.get(players[0])[1])) * -1, 0, 0,
+                /*System.out.println("test: x: "+(float) playersPositions.get(players[0])[0]+", y: "+(float) playersPositions.get(players[0])[1]);
+                System.out.println("test2: x: "+(float) playersPositions.get(players[1])[0]+", y: "+(float) playersPositions.get(players[1])[1]);
+                System.out.println("test3: x: "+(float) playersPositions.get(players[2])[0]+", y: "+(float) playersPositions.get(players[2])[1]);*/
+                playerNameLabel.setText(players[0]);
+                playerNameLabel.setPosition(((playersPositions.get(players[0])[0]) * -1) - 20, ((playersPositions.get(players[0])[1]) * -1) - 3);
+                batch.draw(IDLEDown2, (float) (playersPositions.get(players[0])[0]) * -1, (float) (playersPositions.get(players[0])[1]) * -1, 0, 0,
                         IDLEDown.getRegionWidth(), IDLEDown.getRegionHeight(), spriteSizeX, spriteSizeY, 0);
-                batch.draw(IDLEDown2, (((float) playersPositions.get(players[1])[0])) * -1, (((float) playersPositions.get(players[1])[1])) * -1, 0, 0,
+
+                playerNameLabel2.setText(players[1]);
+                playerNameLabel2.setPosition(((playersPositions.get(players[1])[0]) * -1) - 20, ((playersPositions.get(players[1])[1]) * -1) -3);
+                batch.draw(IDLEDown2, (((float) playersPositions.get(players[1])[0]) * -1), (((float) playersPositions.get(players[1])[1]) * -1), 0, 0,
                         IDLEDown.getRegionWidth(), IDLEDown.getRegionHeight(), spriteSizeX, spriteSizeY, 0);
-                batch.draw(IDLEDown2, (((float) playersPositions.get(players[2])[0])) * -1, (((float) playersPositions.get(players[2])[1])) * -1, 0, 0,
+
+                playerNameLabel.setText(players[2]);
+                playerNameLabel.setPosition(((playersPositions.get(players[2])[0]) * -1) - 20, ((playersPositions.get(players[2])[1]) * -1) - 3);
+                batch.draw(IDLEDown2, (((float) playersPositions.get(players[2])[0]) * -1), (((float) playersPositions.get(players[2])[1]) * -1), 0, 0,
                         IDLEDown.getRegionWidth(), IDLEDown.getRegionHeight(), spriteSizeX, spriteSizeY, 0);
                 break;
         }
@@ -769,8 +794,8 @@ public class MultiplayerGameScreen extends ScreenAdapter {
         JSONObject obj = new JSONObject();
         JSONObject user = new JSONObject();
         user.put("jugador", game.alies);
-        user.put("pos_x", bgPosX - posx);
-        user.put("pos_y", bgPosY - posy);
+        user.put("pos_x", bgPosX + posx);
+        user.put("pos_y", bgPosX + posy);
 
 
         obj.put("type", "pos_jugador");

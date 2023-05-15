@@ -85,6 +85,7 @@ public class GameScreen extends ScreenAdapter {
     Label totemsCorrectesLabel;
     Label totemsIncorrectesLabel;
     Label timerLabel;
+    Label playerNameLabel;
 
     int bgMovement = 5;
 
@@ -135,6 +136,10 @@ public class GameScreen extends ScreenAdapter {
         bgPosX = 0;
         bgPosY = 0;
         playerRect = new Rectangle();
+
+        stage.addActor(playerNameLabel); // Add the label to the stage
+
+        Gdx.input.setInputProcessor(stage);
 
         //IDLE FRAME DOWN
         IDLEFrameDown[0] = new TextureRegion(walkSheet,117,123,20,39);
@@ -377,6 +382,7 @@ public class GameScreen extends ScreenAdapter {
                 playerRect.setSize(spriteSizeX, spriteSizeY);
                 batch.draw(IDLEDown, posx, posy, 0, 0,
                         IDLEDown.getRegionWidth(), IDLEDown.getRegionHeight(), spriteSizeX, spriteSizeY, 0);
+                playerNameLabel.setPosition(posx-10, posy+80);
                 batch.end();
 
                 playerRect.setPosition(posx, posy);
@@ -415,11 +421,11 @@ public class GameScreen extends ScreenAdapter {
                     bgPosY += bgMovement;
                     for (int i = 0; i < goodTotemPositions.size(); i++) {
                         Vector2 position = goodTotemPositions.get(i);
-                        position.y = position.y - bgMovement;
+                        position.y = position.y + bgMovement;
                     }
                     for (int i = 0; i < badTotemPositions.size(); i++) {
                         Vector2 position = badTotemPositions.get(i);
-                        position.y = position.y - bgMovement;
+                        position.y = position.y + bgMovement;
                     }
 
 
