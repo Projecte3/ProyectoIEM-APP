@@ -39,8 +39,8 @@ public class MultiplayerGameScreen extends ScreenAdapter {
     ArrayList<Vector2> goodTotemPositions = new ArrayList<>();
     ArrayList<Vector2> badTotemPositions = new ArrayList<>();
 
-    int itemsCorrectes;
-    int itemsIncorrectes;
+    int itemsCorrectes = 5;
+    int itemsIncorrectes = 5;
     float timer;
 
     static proyectoIEM game;
@@ -415,11 +415,11 @@ public class MultiplayerGameScreen extends ScreenAdapter {
                     position.y = position.y - bgMovement;
                 }
 
-
+/*
                 for (String player: playersPositions.keySet()){
                     playersPositions.get(player)[1] = playersPositions.get(player)[1] - bgMovement;
                 }
-
+*/
                 batch.begin();
                 batch.draw(background, bgPosX, bgPosY, backgroundWidth,backgroundHeight);
 
@@ -448,11 +448,11 @@ public class MultiplayerGameScreen extends ScreenAdapter {
                     position.y = position.y + bgMovement;
                 }
 
-
+/*
                 for (String player: playersPositions.keySet()){
                     playersPositions.get(player)[1] = playersPositions.get(player)[1] + bgMovement;
                 }
-
+*/
 
 
                 batch.begin();
@@ -483,11 +483,11 @@ public class MultiplayerGameScreen extends ScreenAdapter {
                     position.x = position.x + bgMovement;
                 }
 
-
+/*
                 for (String player: playersPositions.keySet()){
                     playersPositions.get(player)[0] = playersPositions.get(player)[0] + bgMovement;
                 }
-
+*/
 
 
                 batch.begin();
@@ -517,11 +517,11 @@ public class MultiplayerGameScreen extends ScreenAdapter {
                     position.x = position.x - bgMovement;
                 }
 
-
+/*
                 for (String player: playersPositions.keySet()){
                     playersPositions.get(player)[0] = playersPositions.get(player)[0] - bgMovement;
                 }
-
+*/
 
 
                 batch.begin();
@@ -544,25 +544,24 @@ public class MultiplayerGameScreen extends ScreenAdapter {
         batch.begin();
         switch (players.length){
             case 1:
-                System.out.println("test1: x: "+(((float) playersPositions.get(players[0])[0]))+", y: "+(((float) playersPositions.get(players[0])[1])));
 
                 playerNameLabel.setText(players[0]);
-                playerNameLabel.setPosition(((playersPositions.get(players[0])[0]) * -1)-20, ((playersPositions.get(players[0])[1]) * -1)-20);
-                batch.draw(IDLEDown2, (((float) playersPositions.get(players[0])[0])) * -1, (((float) playersPositions.get(players[0])[1])) * -1, 0, 0,
+                playerNameLabel.setPosition(((playersPositions.get(players[0])[0])+ bgPosX)-20, ((playersPositions.get(players[0])[1])+ bgPosY)-20);
+                batch.draw(IDLEDown2, (((float) playersPositions.get(players[0])[0])) + bgPosX, (((float) playersPositions.get(players[0])[1])) + bgPosY, 0, 0,
                         IDLEDown.getRegionWidth(), IDLEDown.getRegionHeight(), spriteSizeX, spriteSizeY, 0);
                 break;
             case 2:
 
                 playerNameLabel.setText(players[0]);
-                playerNameLabel.setPosition(((playersPositions.get(players[0])[0]) * -1) - 20, ((playersPositions.get(players[0])[1]) * -1) - 3);
+                playerNameLabel.setPosition(((playersPositions.get(players[0])[0])+ bgPosX) - 20, ((playersPositions.get(players[0])[1])+ bgPosY) - 3);
 
 
-                batch.draw(IDLEDown2, (((float) playersPositions.get(players[0])[0])) * -1, (((float) playersPositions.get(players[0])[1])) * -1, 0, 0,
+                batch.draw(IDLEDown2, (((float) playersPositions.get(players[0])[0])+ bgPosX), (((float) playersPositions.get(players[0])[1])+ bgPosY), 0, 0,
                         IDLEDown.getRegionWidth(), IDLEDown.getRegionHeight(), spriteSizeX, spriteSizeY, 0);
 
                 playerNameLabel2.setText(players[1]);
-                playerNameLabel2.setPosition(((playersPositions.get(players[1])[0]) * -1) - 20, ((playersPositions.get(players[1])[1]) * -1) -3);
-                batch.draw(IDLEDown2, (((float) playersPositions.get(players[1])[0]) * -1), (((float) playersPositions.get(players[1])[1]) * -1), 0, 0,
+                playerNameLabel2.setPosition(((playersPositions.get(players[1])[0])+ bgPosX) - 20, ((playersPositions.get(players[1])[1])+ bgPosY) -3);
+                batch.draw(IDLEDown2, (((float) playersPositions.get(players[1])[0])+ bgPosX), (((float) playersPositions.get(players[1])[1])+ bgPosY), 0, 0,
                         IDLEDown.getRegionWidth(), IDLEDown.getRegionHeight(), spriteSizeX, spriteSizeY, 0);
                 break;
             case 3:
@@ -570,18 +569,18 @@ public class MultiplayerGameScreen extends ScreenAdapter {
                 System.out.println("test2: x: "+(float) playersPositions.get(players[1])[0]+", y: "+(float) playersPositions.get(players[1])[1]);
                 System.out.println("test3: x: "+(float) playersPositions.get(players[2])[0]+", y: "+(float) playersPositions.get(players[2])[1]);*/
                 playerNameLabel.setText(players[0]);
-                playerNameLabel.setPosition(((playersPositions.get(players[0])[0]) * -1) - 20, ((playersPositions.get(players[0])[1]) * -1) - 3);
-                batch.draw(IDLEDown2, (float) (playersPositions.get(players[0])[0]) * -1, (float) (playersPositions.get(players[0])[1]) * -1, 0, 0,
+                playerNameLabel.setPosition(((playersPositions.get(players[0])[0])+ bgPosX) - 20, ((playersPositions.get(players[0])[1])+ bgPosY) - 3);
+                batch.draw(IDLEDown2, ((float) (playersPositions.get(players[0])[0]))+ bgPosX  , ((float) (playersPositions.get(players[0])[1])+ bgPosY), 0, 0,
                         IDLEDown.getRegionWidth(), IDLEDown.getRegionHeight(), spriteSizeX, spriteSizeY, 0);
 
                 playerNameLabel2.setText(players[1]);
-                playerNameLabel2.setPosition(((playersPositions.get(players[1])[0]) * -1) - 20, ((playersPositions.get(players[1])[1]) * -1) -3);
-                batch.draw(IDLEDown2, (((float) playersPositions.get(players[1])[0]) * -1), (((float) playersPositions.get(players[1])[1]) * -1), 0, 0,
+                playerNameLabel2.setPosition(((playersPositions.get(players[1])[0])+ bgPosX) - 20, ((playersPositions.get(players[1])[1])+ bgPosY) -3);
+                batch.draw(IDLEDown2, (((float) playersPositions.get(players[1])[0])+ bgPosX), (((float) playersPositions.get(players[1])[1])+ bgPosY), 0, 0,
                         IDLEDown.getRegionWidth(), IDLEDown.getRegionHeight(), spriteSizeX, spriteSizeY, 0);
 
                 playerNameLabel.setText(players[2]);
-                playerNameLabel.setPosition(((playersPositions.get(players[2])[0]) * -1) - 20, ((playersPositions.get(players[2])[1]) * -1) - 3);
-                batch.draw(IDLEDown2, (((float) playersPositions.get(players[2])[0]) * -1), (((float) playersPositions.get(players[2])[1]) * -1), 0, 0,
+                playerNameLabel.setPosition(((playersPositions.get(players[2])[0])+ bgPosX) - 20, ((playersPositions.get(players[2])[1])+ bgPosY) - 3);
+                batch.draw(IDLEDown2, (((float) playersPositions.get(players[2])[0])+ bgPosX), (((float) playersPositions.get(players[2])[1])+ bgPosY), 0, 0,
                         IDLEDown.getRegionWidth(), IDLEDown.getRegionHeight(), spriteSizeX, spriteSizeY, 0);
                 break;
         }
@@ -801,8 +800,8 @@ public class MultiplayerGameScreen extends ScreenAdapter {
         JSONObject obj = new JSONObject();
         JSONObject user = new JSONObject();
         user.put("jugador", game.alies);
-        user.put("pos_x", bgPosX + posx);
-        user.put("pos_y", bgPosY + posy);
+        user.put("pos_x", (bgPosX * -1) + posx);
+        user.put("pos_y", (bgPosY * -1) + posy);
 
 
         obj.put("type", "pos_jugador");
